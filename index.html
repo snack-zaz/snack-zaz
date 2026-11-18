@@ -10,6 +10,10 @@
         header{background:rgba(0,0,0,.55);color:#fff;border-bottom:4px solid var(--green);text-align:center;padding:16px 12px}
         header h1{margin:0;font-size:26px;letter-spacing:1px;cursor:pointer;user-select:none;}
         header small{display:block;font-weight:700;margin-top:4px}
+        #heroWrap{padding:max(40px,calc(68vh - 210px)) 12px 0;transition:padding .5s ease}
+        #heroWrap.compact{padding-top:12px}
+        .heroBtn-map{background:linear-gradient(135deg,#4285F4,#34A853)}
+        .heroBtn-back{background:#333;border:2px solid var(--gold)}
         .contact{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
         .contact a{background:var(--gf);color:#fff;padding:9px 14px;border-radius:20px;text-decoration:none;font-weight:800;font-size:14px}
         nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--dark);display:flex;overflow-x:auto;gap:6px;padding:8px;scrollbar-width:none}
@@ -75,8 +79,26 @@ header{position:relative;z-index:2}
 .it.open{box-shadow:0 8px 22px rgba(0,0,0,.5)}
 @media(hover:hover){.it:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.5)}.it:hover .d{max-height:220px;opacity:1;margin-top:0;transform:none}}
 /* تأثير الجذب المغناطيسي للأزرار */
-.b,.q button,nav button,.contact a,#bar button{translate:var(--mx,0px) var(--my,0px);transition:background-color 1.2s ease,border-color 1.2s ease,color 1.2s ease,box-shadow 1.2s ease,translate .35s cubic-bezier(.22,1,.36,1)}
+.b,.q button,nav button,.contact a,#bar button,.heroBtn{translate:var(--mx,0px) var(--my,0px);transition:background-color 1.2s ease,border-color 1.2s ease,color 1.2s ease,box-shadow 1.2s ease,translate .35s cubic-bezier(.22,1,.36,1),transform .25s ease}
 .contact a{display:inline-block}
+
+/* أزرار: المينو + واتساب + انستغرام */
+.heroBtns{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;width:100%;max-width:720px;margin:12px auto 0;text-align:center}
+.heroBtn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:22px;font-weight:800;font-size:14px;text-decoration:none;border:0;cursor:pointer;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.4)}
+.heroBtn-menu{background:linear-gradient(135deg,var(--gold),#ff8a00)}
+.heroBtn-wa{background:#25D366}
+.heroBtn-ig{background:linear-gradient(135deg,#feda75,#d62976,#4f5bd5)}
+.heroBtn svg{flex:none;display:block}
+
+/* تكبير أي زر عند اقتراب/مرور الماوس عليه */
+@media(hover:hover){
+  .b:hover,.q button:hover,nav button:hover,.contact a:hover,#bar button:hover,.heroBtn:hover{
+    transform:scale(1.12);
+    box-shadow:0 6px 18px rgba(0,0,0,.45);
+    z-index:3;
+    position:relative;
+  }
+}
 </style>
 </head>
 <body>
@@ -107,14 +129,32 @@ header{position:relative;z-index:2}
         <a href="tel:+212690190984">📞 0690-190984</a>
         <a href="https://wa.me/212690190984" style="background:var(--grf)">💬 WhatsApp</a>
     </div>
+
 </header>
 
-<nav id="nav"></nav>
-<div id="searchBar">
+<div id="heroWrap">
+    <!-- أزرار الدخول: إظهار المينو / واتساب / انستغرام -->
+    <div style="text-align:center;margin-bottom:10px"><a class="heroBtn heroBtn-map" href="https://www.google.com/maps/place/Snack+zaz/@34.0288636,-5.0422985,19z/data=!4m10!1m2!2m1!1sSnack+Zaz+!3m6!1s0xd9f8b0057b68719:0xc8a90ff83409c0df!8m2!3d34.0288636!4d-5.0434894!15sCglTbmFjayBaYXqSAQpyZXN0YXVyYW504AEA!16s%2Fg%2F11_09lvrzf" target="_blank" rel="noopener">📍 Google Maps · الموقع</a></div>
+    <div class="heroBtns">
+        <button type="button" class="heroBtn heroBtn-menu" id="showMenuBtn" onclick="showMenu()">📖 Voir le menu</button>
+        <a class="heroBtn heroBtn-wa" href="https://wa.me/212690190984" target="_blank" rel="noopener">
+            <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M16.004 2.667c-7.364 0-13.333 5.97-13.333 13.333 0 2.353.615 4.56 1.69 6.477L2.667 29.333l7.03-1.843a13.26 13.26 0 0 0 6.307 1.605h.006c7.363 0 13.333-5.97 13.333-13.333S23.367 2.667 16.004 2.667Zm0 24.11h-.005a11.07 11.07 0 0 1-5.64-1.544l-.405-.24-4.172 1.094 1.114-4.067-.264-.418a11.06 11.06 0 0 1-1.697-5.902c0-6.11 4.97-11.08 11.075-11.08 2.96 0 5.742 1.154 7.835 3.249a11 11 0 0 1 3.24 7.84c-.003 6.108-4.973 11.068-11.08 11.068Zm6.073-8.296c-.333-.167-1.97-.973-2.276-1.083-.305-.112-.527-.167-.75.166-.222.334-.861 1.084-1.056 1.306-.194.223-.389.25-.722.084-.333-.167-1.405-.518-2.676-1.65-.989-.883-1.658-1.973-1.853-2.306-.195-.333-.02-.513.146-.679.15-.149.333-.389.5-.584.167-.195.222-.334.333-.556.111-.223.056-.417-.028-.584-.083-.167-.75-1.806-1.028-2.474-.27-.65-.545-.562-.75-.572l-.639-.011c-.222 0-.583.083-.889.417s-1.167 1.14-1.167 2.78 1.195 3.223 1.361 3.446c.167.222 2.351 3.588 5.696 5.032.796.343 1.417.549 1.901.703.799.254 1.527.218 2.102.132.641-.096 1.97-.805 2.249-1.583.278-.779.278-1.446.195-1.584-.084-.138-.306-.222-.639-.389Z"/></svg>
+            <span>WhatsApp</span>
+        </a>
+        <a class="heroBtn heroBtn-ig" href="https://www.instagram.com/snack_zaz/?hl=en" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M7.03 2h9.94A5.03 5.03 0 0 1 22 7.03v9.94A5.03 5.03 0 0 1 16.97 22H7.03A5.03 5.03 0 0 1 2 16.97V7.03A5.03 5.03 0 0 1 7.03 2Zm-.2 2A2.83 2.83 0 0 0 4 6.83v10.34A2.83 2.83 0 0 0 6.83 20h10.34A2.83 2.83 0 0 0 20 17.17V6.83A2.83 2.83 0 0 0 17.17 4H6.83Zm10.92 1.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>
+            <span>Instagram</span>
+        </a>
+    </div>
+    <div style="text-align:center;margin-top:10px"><button type="button" id="backBtn" class="heroBtn heroBtn-back hide" onclick="hideMenu()">⬅ Retour · رجوع</button></div>
+</div>
+
+<nav id="nav" class="hide"></nav>
+<div id="searchBar" class="hide">
     <input type="search" id="searchInput" dir="auto" autocomplete="off" placeholder="🔍 ابحث عن وجبة · Rechercher un plat..." oninput="onSearch(this.value)">
     <button type="button" id="searchClear" class="hide" onclick="clearSearch(true)" aria-label="مسح">✖</button>
 </div>
-<main id="main"></main>
+<main id="main" class="hide"></main>
 
 <div id="pinBox" class="hide"><div>
     <p style="margin:0 0 8px;font-weight:800;color:var(--gold)">أدخل الرمز السري للوحة التحكم</p>
@@ -122,7 +162,7 @@ header{position:relative;z-index:2}
     <div style="display:flex;gap:8px;margin-top:8px"><button class="b" style="flex:1" onclick="checkPin()">تأكيد</button><button class="b" style="flex:1;background:#999" onclick="closePin()">إلغاء</button></div>
 </div></div>
 <div id="toast" class="hide"></div>
-<div id="bar"><button class="b" id="cartBtn" onclick="openCart()">🛒 Voir le panier</button></div>
+<div id="bar" class="hide"><button class="b" id="cartBtn" onclick="openCart()">🛒 Voir le panier</button></div>
 
 <script>
 const WA = "212690190984";
@@ -615,6 +655,41 @@ function sendWA() {
 
 renderNav();
 renderMain();
+
+// إظهار المينو عند الضغط على زر "Voir le menu"
+function hideMenu(){
+    ['nav','searchBar','main','bar'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.classList.add('hide');
+    });
+    var hw = document.getElementById('heroWrap'); if (hw) hw.classList.remove('compact');
+    var bb = document.getElementById('backBtn'); if (bb) bb.classList.add('hide');
+    var btn = document.getElementById('showMenuBtn');
+    if (btn){
+        btn.innerHTML = '\ud83d\udcd6 Voir le menu';
+        btn.disabled = false;
+        btn.style.opacity = '';
+        btn.style.cursor = '';
+    }
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+function showMenu(){
+    var hw = document.getElementById('heroWrap'); if (hw) hw.classList.add('compact');
+    var bb = document.getElementById('backBtn'); if (bb) bb.classList.remove('hide');
+    ['nav','searchBar','main','bar'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('hide');
+    });
+    var btn = document.getElementById('showMenuBtn');
+    if (btn){
+        btn.textContent = '✅ Menu affiché';
+        btn.disabled = true;
+        btn.style.opacity = '.75';
+        btn.style.cursor = 'default';
+    }
+    var main = document.getElementById('main');
+    if (main) main.scrollIntoView({behavior:'smooth', block:'start'});
+}
 </script>
 
 <!-- إضافة: الصور الجانبية + إغلاق لوحة التحكم + حذف الأطباق -->
@@ -808,7 +883,7 @@ M[c].splice(+i,1);cart=[];updateBar();store(M);populateItemSelect();renderMain()
 // أزرار مغناطيسية: تنجذب قليلاً نحو الماوس عند اقترابه (على الأجهزة التي فيها ماوس فقط)
 (function(){
   if(!window.matchMedia||!matchMedia('(hover:hover) and (pointer:fine)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  var SEL='.b,.q button,nav button,.contact a,#bar button',RANGE=90,PULL=.35,mx=-9999,my=-9999,raf=0;
+  var SEL='.b,.q button,nav button,.contact a,#bar button,.heroBtn',RANGE=90,PULL=.35,mx=-9999,my=-9999,raf=0;
   function clamp(v,m){return Math.max(-m,Math.min(m,v))}
   function frame(){
     raf=0;
