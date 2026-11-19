@@ -660,7 +660,43 @@ function addToCart(cat, idx, sizeIdx) {
     updateBar();
 }
 
-const TABLE=(new URLSearchParams(location.search).get('table')||'').replace(/[^A-Za-z0-9\u0600-\u06FF-]/g,'').slice(0,10);
+let TABLE_ERR='';
+const TABLE=(function(){
+  let raw='';
+  try{
+    const keys=['table','tbl','t','tab','tableno','tablenumber','table_number','table_no','desk','num'];
+    const grab=sp=>{for(const [k,v] of sp.entries()){if(keys.indexOf(k.toLowerCase())>-1&&String(v).trim())return String(v).trim();}return '';};
+    raw=grab(new URLSearchParams(location.search));
+    if(!raw&&location.hash)raw=grab(new URLSearchParams(location.hash.replace(/^#\/?\??/,'')));
+    if(!raw){const pm=location.pathname.match(/table[\/_-]?(-?[A-Za-z0-9.]+)/i);if(pm)raw=pm[1];}
+    if(!raw&&/^#-?\d{1,6}$/.test(location.hash))raw=location.hash.slice(1);
+  }catch(e){}
+  const check=v=>{
+    if(/^\d+$/.test(v)){const n=parseInt(v,10);if(n>=1&&n<=10)return {ok:String(n)};if(n>10)return {err:'MAX'};return {err:'MIN'};}
+    if(/^-?\d+(\.\d+)?$/.test(v)){const n=parseFloat(v);if(n>10)return {err:'MAX'};return {err:'MIN'};}
+    return {err:'MIN'};
+  };
+  let t='';
+  if(raw){
+    const r=check(raw);
+    if(r.ok){t=r.ok;try{sessionStorage.setItem('yz_table',t);}catch(e){}}
+    else{TABLE_ERR=r.err;try{sessionStorage.removeItem('yz_table');}catch(e){}}
+  }else{
+    try{const st=sessionStorage.getItem('yz_table');if(st&&check(st).ok)t=check(st).ok;}catch(e){}
+  }
+  return t;
+})();
+function tableErrText(){
+  return TABLE_ERR==='MAX' ? 'لا يوجد هذا العدد من الطاولات' : TABLE_ERR==='MIN' ? 'لا توجد هذه الطاولة' : '';
+}
+(function showTableErr(){
+  const msg=tableErrText();if(!msg)return;
+  const d=document.createElement('div');
+  d.id='tableErrBanner';
+  d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#c62828;color:#fff;font-weight:800;font-size:18px;text-align:center;padding:14px 44px 14px 14px;box-shadow:0 2px 12px rgba(0,0,0,.5)';
+  d.innerHTML='⚠️ '+msg+'<span onclick="this.parentNode.remove()" style="position:absolute;right:14px;top:10px;cursor:pointer;font-size:20px">✕</span>';
+  document.body.appendChild(d);
+})();
 let userLoc = null, locSrc = null, locDesc = '';
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function hasLoc(){return !!(userLoc || locDesc.trim().length >= 3);}
@@ -697,6 +733,7 @@ function openCart() {
         });
         let tot = cart.reduce((s, c) => s + c.price * c.qty, 0);
         html += `<div class="row tot"><b>Total:</b> <b>${tot} DH</b></div>`;
+        if (TABLE_ERR) { html += `<div style="background:#c62828;color:#fff;border-radius:12px;padding:14px;margin-top:14px;text-align:center;font-size:18px;font-weight:800">⚠️ ${tableErrText()}</div>`; }
         if (TABLE) { html += `<div style="background:rgba(0,0,0,.55);border:2px solid var(--green);border-radius:12px;padding:14px;margin-top:14px;text-align:center;font-size:20px;font-weight:800">🪑 طاولة رقم · Table ${escHtml(TABLE)}</div>`; }
         if (!TABLE) {
         html += `<div style="background:rgba(0,0,0,.55);border:1px solid var(--green);border-radius:12px;padding:12px;margin-top:14px">
