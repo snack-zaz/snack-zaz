@@ -682,7 +682,7 @@ const TABLE=(function(){
     if(r.ok){t=r.ok;try{sessionStorage.setItem('yz_table',t);}catch(e){}}
     else{TABLE_ERR=r.err;try{sessionStorage.removeItem('yz_table');}catch(e){}}
   }else{
-    try{const st=sessionStorage.getItem('yz_table');if(st&&check(st).ok)t=check(st).ok;}catch(e){}
+    try{sessionStorage.removeItem('yz_table');}catch(e){}
   }
   return t;
 })();
