@@ -301,7 +301,9 @@ const defaultMenu = {
 };
 
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.remove("hide");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.add("hide"),2500);}
-function store(v){try{localStorage.setItem("yassinos_custom_menu_v3",JSON.stringify(v));}catch(e){}}
+const CLOUD_URL="https://snack-zazz-default-rtdb.europe-west1.firebasedatabase.app";
+function store(v){try{localStorage.setItem("yassinos_custom_menu_v3",JSON.stringify(v));}catch(e){}
+try{fetch(CLOUD_URL+"/menu.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(JSON.stringify(v))}).then(r=>{if(!r.ok)throw 0;}).catch(()=>{try{toast("تعذر الحفظ على السحابة، تحقق من الإنترنت");}catch(e){}});}catch(e){}}
 let savedMenu=null;try{savedMenu=localStorage.getItem("yassinos_custom_menu_v3");}catch(e){}
 let M = savedMenu ? JSON.parse(savedMenu) : defaultMenu;
 
@@ -688,6 +690,22 @@ function sendWA() {
 
 renderNav();
 renderMain();
+
+// تحميل القائمة من السحابة (Firebase) وتحديث العرض
+(function loadCloudMenu(){
+  try{
+    fetch(CLOUD_URL+"/menu.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{
+      if(typeof d!=="string")return;
+      const m=JSON.parse(d);
+      if(!m||typeof m!=="object"||!Object.keys(m).length)return;
+      M=m;
+      try{localStorage.setItem("yassinos_custom_menu_v3",JSON.stringify(M));}catch(e){}
+      if(!(currentCategory in M))currentCategory=Object.keys(M)[0];
+      renderNav();renderMain();
+      try{populateItemSelect();}catch(e){}
+    }).catch(()=>{});
+  }catch(e){}
+})();
 
 // إظهار المينو عند الضغط على زر "Voir le menu"
 function hideMenu(){
