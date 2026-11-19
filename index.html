@@ -132,11 +132,11 @@ body.poster{background:#000}
     
     <!-- لوحة التحكم السرية (تعديل الأثمنة + إضافة أطباق جديدة) -->
     <div id="priceEditorPanel" class="hide admin-box">
-        <details id="bulkBox" style="margin-bottom:14px">
-            <summary style="color:var(--gold);font-weight:bold;font-size:14px;cursor:pointer;padding:6px 0">📝 تعديل كل الأثمنة وحفظها بزر واحد</summary>
-            <div id="bulkList" style="max-height:55vh;overflow-y:auto;margin:8px 0"></div>
-            <button class="b" onclick="saveAllPrices()" style="width:100%">💾 حفظ كل التعديلات</button>
-        </details>
+        <div id="bulkBox" style="margin-bottom:14px">
+            <p style="color:var(--gold);font-weight:bold;font-size:14px;margin:0 0 6px">📝 تعديل كل الأثمنة وحفظها بزر واحد <span style="font-size:10px;opacity:.6">(v2)</span></p>
+            <div id="bulkList" style="max-height:55vh;overflow-y:auto;margin:8px 0;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px"></div>
+            <button type="button" class="b" onclick="saveAllPrices()" style="width:100%;background:var(--green);color:#fff;font-size:16px;padding:12px">💾 حفظ كل التعديلات</button>
+        </div>
         <hr style="border-color: rgba(255,255,255,0.2);margin-bottom:10px">
         <p style="color: var(--gold); margin: 0 0 6px 0; font-size: 14px; font-weight: bold;">🛠️ تعديل الأثمنة الحالية</p>
         <select id="itemSelect" style="margin-bottom: 6px;" onchange="fillIng()"></select>
