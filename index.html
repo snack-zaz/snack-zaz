@@ -605,6 +605,7 @@ function addToCart(cat, idx, sizeIdx) {
     updateBar();
 }
 
+const TABLE=(new URLSearchParams(location.search).get('table')||'').replace(/[^A-Za-z0-9\u0600-\u06FF-]/g,'').slice(0,10);
 let userLoc = null, locSrc = null, locDesc = '';
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function hasLoc(){return !!(userLoc || locDesc.trim().length >= 3);}
@@ -641,6 +642,8 @@ function openCart() {
         });
         let tot = cart.reduce((s, c) => s + c.price * c.qty, 0);
         html += `<div class="row tot"><b>Total:</b> <b>${tot} DH</b></div>`;
+        if (TABLE) { html += `<div style="background:rgba(0,0,0,.55);border:2px solid var(--green);border-radius:12px;padding:14px;margin-top:14px;text-align:center;font-size:20px;font-weight:800">🪑 طاولة رقم · Table ${escHtml(TABLE)}</div>`; }
+        {
         html += `<div style="background:rgba(0,0,0,.55);border:1px solid var(--green);border-radius:12px;padding:12px;margin-top:14px">
             <b>📍 موقعك · Votre position</b>
             <textarea id="locDesc" rows="3" placeholder="صف لنا مكانك: المدينة، الحي، الشارع، أقرب معلمة، رقم الباب..." oninput="setLocDesc(this.value)" style="width:100%;margin-top:8px;padding:10px;border-radius:9px;border:0;font-size:15px;background:#e6e6e6;color:#111;font-family:inherit;resize:vertical">${escHtml(locDesc)}</textarea>
@@ -651,6 +654,7 @@ function openCart() {
             <input id="locInput" type="text" dir="ltr" placeholder="أو الصق رابط موقعك من Google Maps" value="${locSrc==='link'?userLoc:''}" oninput="setLocLink(this.value)">
             <div id="locStatus" style="font-weight:700;margin-top:4px">${locStatusText()}</div>
         </div>`;
+        }
         html += `<button class="b" style="width:100%;margin-top:15px;" onclick="sendWA()">Envoyer sur WhatsApp 💬</button>`;
     }
     main.innerHTML = html;
@@ -676,6 +680,7 @@ function sendWA() {
     cart.forEach(c => { txt += `- ${c.qty}x ${c.name} (${c.price * c.qty} DH)%0A`; });
     let tot = cart.reduce((s, c) => s + c.price * c.qty, 0);
     txt += `%0ATotal: ${tot} DH`;
+    if (TABLE) txt = `🪑 TABLE N° ${encodeURIComponent(TABLE)}%0A%0A` + txt;
     if (locDesc.trim()) txt += `%0A%0A📍 Adresse: ${encodeURIComponent(locDesc.trim())}`;
     if (userLoc) txt += `%0A🗺️ Position: ${encodeURIComponent(userLoc)}`;
     window.open(`https://wa.me/${WA}?text=${txt}`, '_blank');
