@@ -692,10 +692,11 @@ function tableErrText(){
 (function showTableErr(){
   const msg=tableErrText();if(!msg)return;
   const d=document.createElement('div');
-  d.id='tableErrBanner';
-  d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#c62828;color:#fff;font-weight:800;font-size:18px;text-align:center;padding:14px 44px 14px 14px;box-shadow:0 2px 12px rgba(0,0,0,.5)';
-  d.innerHTML='⚠️ '+msg+'<span onclick="this.parentNode.remove()" style="position:absolute;right:14px;top:10px;cursor:pointer;font-size:20px">✕</span>';
+  d.id='tableErrBlock';
+  d.style.cssText='position:fixed;inset:0;z-index:2147483647;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:inherit';
+  d.innerHTML='<div style="font-size:64px;margin-bottom:16px">⚠️</div><div style="font-size:26px;font-weight:800;color:#ff5252;line-height:1.6">'+msg+'</div><div style="margin-top:14px;font-size:16px;opacity:.8">الرجاء مسح رمز QR الموجود على طاولتك</div>';
   document.body.appendChild(d);
+  document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden';
 })();
 let userLoc = null, locSrc = null, locDesc = '';
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -723,6 +724,7 @@ function setLocLink(v){
 }
 
 function openCart() {
+    if (TABLE_ERR) return;
     let main = document.getElementById('main');
     let html = `<h2>🛒 Mon Panier</h2>`;
     if (cart.length === 0) {
@@ -767,6 +769,7 @@ function updateBar() {
 }
 
 function sendWA() {
+    if (TABLE_ERR) { toast(tableErrText()); return; }
     if (!TABLE && !hasLoc()) { toast("الرجاء وصف مكانك أو تحديده على الخريطة"); const el=document.getElementById('locDesc'); if(el) el.focus(); return; }
     let txt = "Bonjour, je souhaite commander:%0A";
     cart.forEach(c => { txt += `- ${c.qty}x ${c.name} (${c.price * c.qty} DH)%0A`; });
