@@ -132,6 +132,12 @@ body.poster{background:#000}
     
     <!-- لوحة التحكم السرية (تعديل الأثمنة + إضافة أطباق جديدة) -->
     <div id="priceEditorPanel" class="hide admin-box">
+        <details id="bulkBox" style="margin-bottom:14px">
+            <summary style="color:var(--gold);font-weight:bold;font-size:14px;cursor:pointer;padding:6px 0">📝 تعديل كل الأثمنة وحفظها بزر واحد</summary>
+            <div id="bulkList" style="max-height:55vh;overflow-y:auto;margin:8px 0"></div>
+            <button class="b" onclick="saveAllPrices()" style="width:100%">💾 حفظ كل التعديلات</button>
+        </details>
+        <hr style="border-color: rgba(255,255,255,0.2);margin-bottom:10px">
         <p style="color: var(--gold); margin: 0 0 6px 0; font-size: 14px; font-weight: bold;">🛠️ تعديل الأثمنة الحالية</p>
         <select id="itemSelect" style="margin-bottom: 6px;" onchange="fillIng()"></select>
         <input type="number" id="itemNewPrice" placeholder="السعر الجديد" style="margin-bottom: 6px;">
@@ -341,7 +347,54 @@ function togglePriceEditor() {
     if (!panel.classList.contains("hide")) {
         populateItemSelect();
         populateCategorySelect();
+        buildBulkEditor();
     }
+}
+
+function buildBulkEditor(){
+    const box=document.getElementById("bulkList");
+    if(!box)return;
+    box.innerHTML="";
+    for(const c in M){
+        const h=document.createElement("div");
+        h.textContent=c;
+        h.style.cssText="color:var(--gold);font-weight:bold;margin:12px 0 4px;border-bottom:1px solid rgba(255,255,255,.2)";
+        box.appendChild(h);
+        M[c].forEach((it,i)=>{
+            const row=document.createElement("div");
+            row.style.cssText="display:flex;align-items:center;gap:6px;margin:4px 0";
+            const n=document.createElement("span");
+            n.textContent=it[0];
+            n.style.cssText="flex:1;font-size:13px;direction:ltr;text-align:left";
+            row.appendChild(n);
+            const prices=Array.isArray(it[1])?it[1]:[it[1]];
+            prices.forEach((pr,k)=>{
+                const inp=document.createElement("input");
+                inp.type="number";inp.value=pr;
+                inp.dataset.c=c;inp.dataset.i=i;inp.dataset.k=k;
+                inp.className="bulkPrice";
+                inp.style.cssText="width:70px;margin:0;text-align:center";
+                row.appendChild(inp);
+            });
+            box.appendChild(row);
+        });
+    }
+}
+
+function saveAllPrices(){
+    let n=0;
+    document.querySelectorAll("#bulkList .bulkPrice").forEach(inp=>{
+        const v=parseFloat(inp.value);
+        if(isNaN(v))return;
+        const c=inp.dataset.c,i=+inp.dataset.i,k=+inp.dataset.k;
+        if(!M[c]||!M[c][i])return;
+        if(Array.isArray(M[c][i][1])){ if(M[c][i][1][k]!==v){M[c][i][1][k]=v;n++;} }
+        else if(M[c][i][1]!==v){M[c][i][1]=v;n++;}
+    });
+    store(M);
+    renderMain();
+    try{populateItemSelect();}catch(e){}
+    toast(n?("تم حفظ "+n+" تعديل بنجاح!"):"لا توجد تعديلات جديدة");
 }
 
 function populateItemSelect() {
