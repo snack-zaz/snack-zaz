@@ -15,6 +15,7 @@
     <meta property="og:description" content="Snack Zaz à Fès : tacos, pizzas, burgers, panini, chawarma, pâtes et desserts. Livraison à domicile, commande sur WhatsApp. سناك زاز فاس – توصيل حتى الدار.">
     <meta property="og:locale" content="fr_MA">
     <meta property="og:locale:alternate" content="ar_MA">
+    <meta property="og:locale:alternate" content="en_US">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Snack Zaz Fès | Tacos, Pizza, Burgers – Livraison à domicile">
     <meta name="twitter:description" content="Snack Zaz à Fès : tacos, pizzas, burgers, panini, chawarma, pâtes et desserts. Livraison à domicile, commande sur WhatsApp. سناك زاز فاس – توصيل حتى الدار.">
@@ -52,7 +53,8 @@
   "currenciesAccepted": "MAD",
   "inLanguage": [
     "fr",
-    "ar"
+    "ar",
+    "en"
   ],
   "sameAs": [
     "https://www.facebook.com/people/Snack-Zaz/61591402094848/",
@@ -195,8 +197,14 @@ body.poster{background:#000}
 
 
 <header>
-    <h1 onclick="handleTitleClick()">🌮 SNACK ZAZ<span class="sr-only"> – Snack et livraison à domicile à Fès : tacos, pizza, burgers · سناك زاز فاس</span></h1>
-    <small>Livraison jusqu'à domicile · التوصيل حتى الدار</small>
+    <div id="langSwitch" class="langSwitch" dir="ltr" role="group" aria-label="Langue · Language · اللغة">
+        <span class="lsIcon" aria-hidden="true">🌐</span>
+        <button type="button" data-lang="ar" lang="ar" onclick="setLang('ar')" title="العربية">ع</button>
+        <button type="button" data-lang="fr" lang="fr" onclick="setLang('fr')" title="Français">FR</button>
+        <button type="button" data-lang="en" lang="en" onclick="setLang('en')" title="English">EN</button>
+    </div>
+    <h1 onclick="handleTitleClick()">🌮 SNACK ZAZ<span class="sr-only" data-i18n="h1sr"> – Snack et livraison à domicile à Fès : tacos, pizza, burgers · سناك زاز فاس</span></h1>
+    <small data-i18n="tagline">Livraison jusqu'à domicile · التوصيل حتى الدار</small>
     
     <!-- لوحة التحكم السرية (تعديل الأثمنة + إضافة أطباق جديدة) -->
     <div id="priceEditorPanel" class="hide admin-box">
@@ -231,14 +239,14 @@ body.poster{background:#000}
 
 <div id="heroWrap">
     <!-- أزرار الدخول: إظهار المينو / واتساب / انستغرام -->
-    <div style="display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px"><a class="heroBtn heroBtn-map" href="https://www.google.com/maps/place/Snack+zaz/@34.0288636,-5.0422985,19z/data=!4m10!1m2!2m1!1sSnack+Zaz+!3m6!1s0xd9f8b0057b68719:0xc8a90ff83409c0df!8m2!3d34.0288636!4d-5.0434894!15sCglTbmFjayBaYXqSAQpyZXN0YXVyYW504AEA!16s%2Fg%2F11_09lvrzf" target="_blank" rel="noopener">📍 Google Maps · الموقع</a>
+    <div style="display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px"><a class="heroBtn heroBtn-map" href="https://www.google.com/maps/place/Snack+zaz/@34.0288636,-5.0422985,19z/data=!4m10!1m2!2m1!1sSnack+Zaz+!3m6!1s0xd9f8b0057b68719:0xc8a90ff83409c0df!8m2!3d34.0288636!4d-5.0434894!15sCglTbmFjayBaYXqSAQpyZXN0YXVyYW504AEA!16s%2Fg%2F11_09lvrzf" target="_blank" rel="noopener">📍 <span data-i18n="map">Google Maps · الموقع</span></a>
 <a class="heroBtn heroBtn-fb" href="https://www.facebook.com/people/Snack-Zaz/61591402094848/" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M13.5 22v-8.2h2.8l.5-3.3h-3.3V8.4c0-.95.33-1.6 1.7-1.6H17V3.9c-.3-.04-1.3-.13-2.5-.13-2.5 0-4.2 1.5-4.2 4.3v2.4H7.5v3.3h2.8V22h3.2Z"/></svg>
             <span>Facebook</span>
         </a>
 </div>
     <div class="heroBtns">
-        <button type="button" class="heroBtn heroBtn-menu" id="showMenuBtn" onclick="showMenu()">📖 Voir le menu</button>
+        <button type="button" class="heroBtn heroBtn-menu" id="showMenuBtn" onclick="showMenu()" data-i18n="showMenu">📖 Voir le menu</button>
         <a class="heroBtn heroBtn-wa" href="https://wa.me/212690190984" target="_blank" rel="noopener">
             <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M16.004 2.667c-7.364 0-13.333 5.97-13.333 13.333 0 2.353.615 4.56 1.69 6.477L2.667 29.333l7.03-1.843a13.26 13.26 0 0 0 6.307 1.605h.006c7.363 0 13.333-5.97 13.333-13.333S23.367 2.667 16.004 2.667Zm0 24.11h-.005a11.07 11.07 0 0 1-5.64-1.544l-.405-.24-4.172 1.094 1.114-4.067-.264-.418a11.06 11.06 0 0 1-1.697-5.902c0-6.11 4.97-11.08 11.075-11.08 2.96 0 5.742 1.154 7.835 3.249a11 11 0 0 1 3.24 7.84c-.003 6.108-4.973 11.068-11.08 11.068Zm6.073-8.296c-.333-.167-1.97-.973-2.276-1.083-.305-.112-.527-.167-.75.166-.222.334-.861 1.084-1.056 1.306-.194.223-.389.25-.722.084-.333-.167-1.405-.518-2.676-1.65-.989-.883-1.658-1.973-1.853-2.306-.195-.333-.02-.513.146-.679.15-.149.333-.389.5-.584.167-.195.222-.334.333-.556.111-.223.056-.417-.028-.584-.083-.167-.75-1.806-1.028-2.474-.27-.65-.545-.562-.75-.572l-.639-.011c-.222 0-.583.083-.889.417s-1.167 1.14-1.167 2.78 1.195 3.223 1.361 3.446c.167.222 2.351 3.588 5.696 5.032.796.343 1.417.549 1.901.703.799.254 1.527.218 2.102.132.641-.096 1.97-.805 2.249-1.583.278-.779.278-1.446.195-1.584-.084-.138-.306-.222-.639-.389Z"/></svg>
             <span>WhatsApp</span>
@@ -248,13 +256,13 @@ body.poster{background:#000}
             <span>Instagram</span>
         </a>
     </div>
-    <div style="text-align:center;margin-top:10px"><button type="button" id="backBtn" class="heroBtn heroBtn-back hide" onclick="hideMenu()">⬅ Retour · رجوع</button></div>
+    <div style="text-align:center;margin-top:10px"><button type="button" id="backBtn" class="heroBtn heroBtn-back hide" onclick="hideMenu()" data-i18n="back">⬅ Retour · رجوع</button></div>
 </div>
 
-<nav id="nav" class="hide" aria-label="Catégories du menu · أقسام القائمة"></nav>
+<nav id="nav" class="hide" data-i18n-aria="navLabel" aria-label="Catégories du menu · أقسام القائمة"></nav>
 <div id="searchBar" class="hide">
-    <input type="search" id="searchInput" dir="auto" autocomplete="off" placeholder="🔍 ابحث عن وجبة · Rechercher un plat..." oninput="onSearch(this.value)">
-    <button type="button" id="searchClear" class="hide" onclick="clearSearch(true)" aria-label="مسح">✖</button>
+    <input type="search" id="searchInput" dir="auto" autocomplete="off" data-i18n-ph="search" placeholder="🔍 ابحث عن وجبة · Rechercher un plat..." oninput="onSearch(this.value)">
+    <button type="button" id="searchClear" class="hide" onclick="clearSearch(true)" data-i18n-aria="clear" aria-label="مسح">✖</button>
 </div>
 <main id="main" class="hide"></main>
 
@@ -266,6 +274,163 @@ body.poster{background:#000}
 <div id="toast" class="hide"></div>
 <div id="bar" class="hide"><button class="b" id="cartBtn" onclick="openCart()">🛒 Voir le panier</button></div>
 
+<script>
+/* ===== I18N: عربي / Français / English ===== */
+const I18N = {
+ fr:{
+  dir:'ltr', tag:'fr', name:'Français',
+  title:"Snack Zaz Fès | Tacos, Pizza, Burgers – Livraison à domicile",
+  desc:"Snack Zaz à Fès : tacos, pizzas, burgers, panini, chawarma, pâtes et desserts. Livraison à domicile, commande sur WhatsApp.",
+  h1sr:" – Snack et livraison à domicile à Fès : tacos, pizza, burgers · سناك زاز فاس",
+  tagline:"Livraison jusqu'à domicile", map:"Google Maps · Localisation", showMenu:"📖 Voir le menu", menuShown:"✅ Menu affiché",
+  back:"⬅ Retour", navLabel:"Catégories du menu", search:"🔍 Rechercher un plat...", clear:"Effacer", noRes:"😕 Aucun résultat",
+  ingr:"🧾 Ingrédients", price:"💰 Prix", small:"Petit", large:"Grand",
+  cartView:"🛒 Voir le panier", cartN:"🛒 Panier ({n} articles) - {p} DH", cartN1:"🛒 Panier (1 article) - {p} DH", cartTitle:"🛒 Mon Panier", cartEmpty:"Le panier est vide.", total:"Total :",
+  table:"🪑 Table n° {n}", pos:"📍 Votre position", posPh:"Décrivez votre adresse : ville, quartier, rue, point de repère, n° de porte...",
+  or:"— ou aussi —", gps:"📡 Me localiser automatiquement", openMaps:"🗺️ Ouvrir Google Maps", pasteLink:"Ou collez le lien de votre position Google Maps",
+  locOk:"✅ Position enregistrée", locNeed:"Veuillez décrire votre adresse ou la localiser sur la carte", locWait:"⏳ Localisation en cours...",
+  locDone:"Position enregistrée ✅", locNoGps:"Votre navigateur ne supporte pas le GPS, utilisez un lien Google Maps",
+  locFail:"Localisation impossible. Activez le GPS et autorisez l'accès, ou collez un lien Google Maps",
+  sendWA:"Envoyer sur WhatsApp 💬", errMax:"Ce nombre de tables n'existe pas", errMin:"Cette table n'existe pas", errQR:"Veuillez scanner le QR code présent sur votre table",
+  switchLabel:"Langue"
+ },
+ en:{
+  dir:'ltr', tag:'en', name:'English',
+  title:"Snack Zaz Fez | Tacos, Pizza, Burgers – Home Delivery",
+  desc:"Snack Zaz in Fez: tacos, pizzas, burgers, panini, shawarma, pasta and desserts. Home delivery, order on WhatsApp.",
+  h1sr:" – Snack and home delivery in Fez: tacos, pizza, burgers · Snack Zaz Fès",
+  tagline:"Delivery right to your door", map:"Google Maps · Location", showMenu:"📖 View menu", menuShown:"✅ Menu displayed",
+  back:"⬅ Back", navLabel:"Menu categories", search:"🔍 Search for a dish...", clear:"Clear", noRes:"😕 No results",
+  ingr:"🧾 Ingredients", price:"💰 Price", small:"Small", large:"Large",
+  cartView:"🛒 View cart", cartN:"🛒 Cart ({n} items) - {p} DH", cartN1:"🛒 Cart (1 item) - {p} DH", cartTitle:"🛒 My Cart", cartEmpty:"Your cart is empty.", total:"Total:",
+  table:"🪑 Table no. {n}", pos:"📍 Your location", posPh:"Describe where you are: city, neighbourhood, street, nearest landmark, door number...",
+  or:"— or —", gps:"📡 Locate me automatically", openMaps:"🗺️ Open Google Maps", pasteLink:"Or paste your Google Maps location link",
+  locOk:"✅ Location saved", locNeed:"Please describe your location or pin it on the map", locWait:"⏳ Locating you...",
+  locDone:"Location saved ✅", locNoGps:"Your browser doesn't support GPS, use a Google Maps link",
+  locFail:"Couldn't get your location. Turn on GPS and allow access, or paste a Google Maps link",
+  sendWA:"Send on WhatsApp 💬", errMax:"This many tables don't exist", errMin:"This table doesn't exist", errQR:"Please scan the QR code on your table",
+  switchLabel:"Language"
+ },
+ ar:{
+  dir:'rtl', tag:'ar', name:'العربية',
+  title:"سناك زاز فاس | تاكوس، بيتزا، برغر – توصيل إلى المنزل",
+  desc:"سناك زاز بفاس: تاكوس وبيتزا وبرغر وبانيني وشاورما ومعكرونة وحلويات. توصيل حتى الدار، والطلب عبر واتساب.",
+  h1sr:" – سناك وتوصيل إلى المنزل بفاس: تاكوس، بيتزا، برغر · Snack Zaz",
+  tagline:"التوصيل حتى الدار", map:"Google Maps · الموقع", showMenu:"📖 عرض القائمة", menuShown:"✅ القائمة معروضة",
+  back:"⬅ رجوع", navLabel:"أقسام القائمة", search:"🔍 ابحث عن وجبة...", clear:"مسح", noRes:"😕 لا توجد نتائج",
+  ingr:"🧾 المكونات", price:"💰 السعر", small:"صغير", large:"كبير",
+  cartView:"🛒 عرض السلة", cartN:"🛒 السلة ({n} منتجات) - {p} درهم", cartN1:"🛒 السلة (منتج واحد) - {p} درهم", cartN2:"🛒 السلة (منتجان) - {p} درهم", cartTitle:"🛒 سلتي", cartEmpty:"السلة فارغة.", total:"المجموع:",
+  table:"🪑 طاولة رقم {n}", pos:"📍 موقعك", posPh:"صف لنا مكانك: المدينة، الحي، الشارع، أقرب معلمة، رقم الباب...",
+  or:"— أو يمكنك أيضاً —", gps:"📡 تحديد موقعي تلقائياً", openMaps:"🗺️ فتح Google Maps", pasteLink:"أو الصق رابط موقعك من Google Maps",
+  locOk:"✅ تم تسجيل موقعك", locNeed:"الرجاء وصف مكانك أو تحديده على الخريطة", locWait:"⏳ جارٍ تحديد موقعك...",
+  locDone:"تم تحديد موقعك ✅", locNoGps:"المتصفح لا يدعم GPS، استعمل رابط Google Maps",
+  locFail:"تعذّر تحديد الموقع. فعّل GPS وأذن للموقع أو الصق رابط Google Maps",
+  sendWA:"إرسال عبر واتساب 💬", errMax:"لا يوجد هذا العدد من الطاولات", errMin:"لا توجد هذه الطاولة", errQR:"الرجاء مسح رمز QR الموجود على طاولتك",
+  switchLabel:"اللغة"
+ }
+};
+/* أسماء الأقسام (المفتاح يبقى فرنسياً لأن البيانات والسحابة تعتمد عليه) */
+const CAT_NAMES = {
+ TACOS:{fr:"TACOS",en:"TACOS",ar:"تاكوس"}, PANINI:{fr:"PANINI",en:"PANINI",ar:"بانيني"}, CHAWARMA:{fr:"CHAWARMA",en:"SHAWARMA",ar:"شاورما"},
+ BURGER:{fr:"BURGER",en:"BURGERS",ar:"برغر"}, PIZZA:{fr:"PIZZA",en:"PIZZA",ar:"بيتزا"}, SALADES:{fr:"SALADES",en:"SALADS",ar:"سلطات"},
+ PLATS:{fr:"PLATS",en:"MAIN DISHES",ar:"أطباق"}, PASTICCIO:{fr:"PASTICCIO",en:"PASTICCIO",ar:"باستيتشيو"}, "PÂTES":{fr:"PÂTES",en:"PASTA",ar:"معكرونة"},
+ "SUPPLÉMENTS":{fr:"SUPPLÉMENTS",en:"EXTRAS",ar:"إضافات"}, BOISSONS:{fr:"BOISSONS",en:"DRINKS",ar:"مشروبات"}, DESSERT:{fr:"DESSERT",en:"DESSERT",ar:"حلويات"}
+};
+/* أسماء الأطباق الافتراضية (الأسماء المضافة من لوحة التحكم تبقى كما كُتبت) */
+const DISH_NAMES = {
+ "Tacos Poulet":["Chicken Tacos","تاكوس دجاج"],"Tacos Viande":["Beef Tacos","تاكوس لحم"],"Tacos Nuggets":["Nuggets Tacos","تاكوس ناجتس"],
+ "Tacos Chawarma":["Shawarma Tacos","تاكوس شاورما"],"Tacos Mixte":["Mixed Tacos","تاكوس مشكل"],"Tacos Crispy":["Crispy Tacos","تاكوس كريسبي"],
+ "Tacos Jambon":["Ham Tacos","تاكوس جامبون"],"Tacos Mexicain":["Mexican Tacos","تاكوس مكسيكي"],"Cordon Bleu":["Cordon Bleu","كوردون بلو"],
+ "Big Tacos":["Big Tacos","بيغ تاكوس"],"Tacos Torittos":["Torittos Tacos","تاكوس توريتوس"],"Tacos Gratiné":["Gratin Tacos","تاكوس غراتان"],
+ "Tacos Poulet XL":["Chicken Tacos XL","تاكوس دجاج XL"],"Viande Hachée XL Tacos":["Minced Beef Tacos XL","تاكوس لحم مفروم XL"],
+ "Tacos Crispy XL":["Crispy Tacos XL","تاكوس كريسبي XL"],"Mixte XL":["Mixed XL","مشكل XL"],"Tacos Gega":["Tacos Gega","تاكوس جيجا"],
+ "Box Crispy":["Crispy Box","بوكس كريسبي"],"Wrap":["Wrap","راب"],
+ "Panini Poulet":["Chicken Panini","بانيني دجاج"],"Panini Viande Hachée":["Minced Beef Panini","بانيني لحم مفروم"],
+ "Panini Nuggets":["Nuggets Panini","بانيني ناجتس"],"Panini Mixte":["Mixed Panini","بانيني مشكل"],
+ "Chawarma Normale":["Classic Shawarma","شاورما عادية"],"Fromage + Frite":["Cheese + Fries","جبن + بطاطس"],"Double Fromage":["Double Cheese","جبن مزدوج"],
+ "Chicken Burger":["Chicken Burger","برغر دجاج"],"Cheese Burger":["Cheese Burger","تشيز برغر"],
+ "Double Cheese Burger":["Double Cheese Burger","دبل تشيز برغر"],"Double Chicken Burger":["Double Chicken Burger","دبل برغر دجاج"],
+ "Pizza Margarita":["Margherita Pizza","بيتزا مارغريتا"],"Pizza Végétarienne":["Vegetarian Pizza","بيتزا نباتية"],"Pizza Pepperoni":["Pepperoni Pizza","بيتزا بيبروني"],
+ "Pizza Viande Hachée":["Minced Beef Pizza","بيتزا لحم مفروم"],"Pizza Poulet":["Chicken Pizza","بيتزا دجاج"],"Pizza Thon":["Tuna Pizza","بيتزا تونة"],
+ "Pizza 4 Saisons":["Four Seasons Pizza","بيتزا الفصول الأربعة"],"Pizza Chawarma":["Shawarma Pizza","بيتزا شاورما"],
+ "Pizza Fruits de Mer":["Seafood Pizza","بيتزا فواكه البحر"],"Pizza Yassinos":["Yassinos Pizza","بيتزا ياسينوس"],
+ "Salade Chef":["Chef Salad","سلطة الشيف"],"Salade Riche":["Rich Salad","سلطة غنية"],"Salade Crispy":["Crispy Salad","سلطة كريسبي"],
+ "Salade Variée":["Mixed Salad","سلطة مشكلة"],"Salade Fruits de Mer":["Seafood Salad","سلطة فواكه البحر"],
+ "Brochette Poulet":["Chicken Skewers","شيش دجاج"],"Brochette Viande":["Beef Skewers","شيش لحم"],"Plat Crispy":["Crispy Plate","طبق كريسبي"],
+ "Plat Chawarma":["Shawarma Plate","طبق شاورما"],"Plat Émincé":["Sliced Meat Plate","طبق لحم مقطّع"],
+ "Pasticcio Poulet":["Chicken Pasticcio","باستيتشيو دجاج"],"Pasticcio Jambon":["Ham Pasticcio","باستيتشيو جامبون"],"Pasticcio Nuggets":["Nuggets Pasticcio","باستيتشيو ناجتس"],
+ "Pasticcio Viande Hachée":["Minced Beef Pasticcio","باستيتشيو لحم مفروم"],"Pasticcio Mixte":["Mixed Pasticcio","باستيتشيو مشكل"],
+ "Pasticcio Cordon Bleu":["Cordon Bleu Pasticcio","باستيتشيو كوردون بلو"],"Pasticcio Chawarma":["Shawarma Pasticcio","باستيتشيو شاورما"],
+ "Pasticcio Fruits de Mer":["Seafood Pasticcio","باستيتشيو فواكه البحر"],"Kassriya Pasticcio":["Kassriya Pasticcio","باستيتشيو قصرية"],
+ "Pâtes Charcuterie":["Cold Cuts Pasta","معكرونة بالمقدّدات"],"Pâtes Poulet":["Chicken Pasta","معكرونة دجاج"],
+ "Pâtes Bolognaise":["Pasta Bolognese","معكرونة بولونيز"],"Pâtes Fruits de Mer":["Seafood Pasta","معكرونة فواكه البحر"],
+ "Portion de frites":["Portion of Fries","حصة بطاطس مقلية"],"Supplément fromage":["Extra Cheese","جبن إضافي"],
+ "6 pièces Nuggets":["6 Nuggets","6 قطع ناجتس"],"6 Mozza Sticks":["6 Mozzarella Sticks","6 أصابع موتزاريلا"],
+ "Jus citron":["Lemon Juice","عصير ليمون"],"Jus orange":["Orange Juice","عصير برتقال"],"Jus avocat":["Avocado Juice","عصير أفوكادو"],
+ "Jus Panaché":["Mixed Juice","عصير مشكل"],"Soda 1 L":["Soda 1 L","مشروب غازي 1 لتر"],"Canette":["Can","علبة مشروب"],"Tiramisu":["Tiramisu","تيراميسو"]
+};
+/* ترجمة جمل المكونات الافتراضية (تُقسَّم عند الفواصل) */
+const ING = {
+ "Pain burger":["Burger bun","خبز برغر"],"fromage":["cheese","جبن"],"salade":["lettuce","خس"],"tomate":["tomato","طماطم"],"sauce":["sauce","صلصة"],
+ "steak haché":["beef patty","شريحة لحم مفروم"],"poulet pané":["breaded chicken","دجاج مقرمش"],"(x2)":["(x2)","(x2)"],
+ "Galette tortilla":["Tortilla wrap","خبز تورتيلا"],"frites":["fries","بطاطس مقلية"],"sauce fromagère":["cheese sauce","صلصة الجبن"],"crudités":["raw veggies","خضار طازجة"],
+ "fromage fondu":["melted cheese","جبن ذائب"],"fromage gratiné":["gratinated cheese","جبن غراتان"],"Frites":["Fries","بطاطس مقلية"],
+ "Pain panini grillé":["Grilled panini bread","خبز بانيني مشوي"],"Pain":["Bread","خبز"],"chawarma":["shawarma","شاورما"],"double fromage":["double cheese","جبن مزدوج"],
+ "Pâte maison":["Homemade dough","عجينة منزلية"],"sauce tomate":["tomato sauce","صلصة الطماطم"],"mozzarella":["mozzarella","موتزاريلا"],"olives":["olives","زيتون"],
+ "légumes grillés":["grilled vegetables","خضار مشوية"],"poulet":["chicken","دجاج"],"viande hachée":["minced meat","لحم مفروم"],"champignons":["mushrooms","فطر"],"poivrons":["peppers","فلفل"],
+ "Laitue":["Lettuce","خس"],"concombre":["cucumber","خيار"],"maïs":["corn","ذرة"],"œuf":["egg","بيض"],"thon":["tuna","تونة"],
+ "Servi avec frites":["Served with fries","تُقدَّم مع البطاطس"],"salade et sauce":["salad and sauce","سلطة وصلصة"],
+ "Pâtes gratinées":["Baked pasta","معكرونة بالفرن"],"béchamel":["béchamel","بيشاميل"],"Pâtes":["Pasta","معكرونة"],"sauce crème":["cream sauce","صلصة الكريمة"],
+ "Pommes de terre fraîches":["Fresh potatoes","بطاطس طازجة"],"croustillantes":["crispy","مقرمشة"],"Fromage fondu en supplément":["Extra melted cheese","جبن ذائب إضافي"],
+ "Morceaux de poulet panés":["Breaded chicken pieces","قطع دجاج مقرمشة"],"dorés":["golden","ذهبية"],"Bâtonnets de mozzarella panés":["Breaded mozzarella sticks","أصابع موتزاريلا مقرمشة"],"fondants":["melty","ذائبة"],
+ "Citron pressé frais":["Freshly squeezed lemon","ليمون معصور طازج"],"Oranges pressées fraîches":["Freshly squeezed oranges","برتقال معصور طازج"],
+ "Avocat":["Avocado","أفوكادو"],"lait":["milk","حليب"],"sucre":["sugar","سكر"],"Mélange de jus de fruits frais":["Blend of fresh fruit juices","مزيج من عصائر الفواكه الطازجة"],
+ "Boisson gazeuse 1 litre":["Fizzy drink, 1 litre","مشروب غازي، 1 لتر"],"Boisson fraîche":["Cold drink","مشروب بارد"],
+ "Mascarpone":["Mascarpone","ماسكاربوني"],"biscuits":["biscuits","بسكويت"],"café":["coffee","قهوة"],"cacao":["cocoa","كاكاو"],
+ "fruits de mer":["seafood","فواكه البحر"],"cordon bleu":["cordon bleu","كوردون بلو"],"poulet, poivrons et sauce mexicaine":["chicken, peppers and Mexican sauce","دجاج وفلفل وصلصة مكسيكية"],
+ "poulet et viande hachée":["chicken and minced meat","دجاج ولحم مفروم"],"poulet crispy":["crispy chicken","دجاج كريسبي"],"nuggets de poulet":["chicken nuggets","ناجتس الدجاج"],
+ "poivrons et sauce mexicaine":["peppers and Mexican sauce","فلفل وصلصة مكسيكية"],
+ "poulet mariné":["marinated chicken","دجاج متبّل"],"jambon":["ham","جامبون"],"pepperoni":["pepperoni","بيبروني"],"charcuterie":["cold cuts","مقدّدات"]
+};
+let LANG='fr';
+function t(k,v){let s=(I18N[LANG]&&I18N[LANG][k]);if(s===undefined)s=I18N.fr[k]||k;if(v)for(const x in v)s=s.replace('{'+x+'}',v[x]);return s}
+function catName(c){return (CAT_NAMES[c]&&CAT_NAMES[c][LANG])||c}
+function dishName(n){if(LANG==='fr'||!DISH_NAMES[n])return n;return DISH_NAMES[n][LANG==='en'?0:1]}
+function ingText(s){if(LANG==='fr'||!s)return s;return s.split(', ').map(p=>{let suf='';const x=p.match(/^(.*?)( \(x2\))$/);if(x){p=x[1];suf=x[2]}const m=ING[p]||ING[p.trim()];return (m?m[LANG==='en'?0:1]:p)+suf}).join(LANG==='ar'?'، ':', ')}
+function sizeLabel(i){return i===0?t('small'):t('large')}
+function priceUnit(){return LANG==='ar'?'درهم':'DH'}
+
+function cartLabel(c){const base=c.baseName||c.name;return dishName(base)+((c.sizeIdx===0||c.sizeIdx===1)?' ('+sizeLabel(c.sizeIdx)+')':'')}
+var inCart=false;
+/* اختيار اللغة: ?lang=xx ثم آخر اختيار محفوظ ثم لغة المتصفح ثم الفرنسية */
+function detectLang(){
+  try{const q=new URLSearchParams(location.search).get('lang');if(q&&I18N[q.toLowerCase()])return q.toLowerCase();}catch(e){}
+  try{const v=localStorage.getItem('yz_lang');if(v&&I18N[v])return v;}catch(e){}
+  const L=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||'fr'];
+  for(const x of L){const c=String(x).slice(0,2).toLowerCase();if(I18N[c])return c;}
+  return 'fr';
+}
+LANG=detectLang();
+function applyLang(l,noSave){
+  if(!I18N[l])l='fr';LANG=l;
+  if(!noSave){try{localStorage.setItem('yz_lang',l);}catch(e){}}
+  const d=I18N[l],h=document.documentElement;h.lang=d.tag;h.dir=d.dir;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n)});
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.dataset.i18nPh)});
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{el.setAttribute('aria-label',t(el.dataset.i18nAria))});
+  document.querySelectorAll('#langSwitch button').forEach(b=>{const on=b.dataset.lang===l;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});
+  document.title=d.title;
+  const M2=(sel,v)=>{const m=document.querySelector(sel);if(m)m.setAttribute('content',v)};
+  M2('meta[name="description"]',d.desc);M2('meta[property="og:title"]',d.title);M2('meta[property="og:description"]',d.desc);
+  M2('meta[name="twitter:title"]',d.title);M2('meta[name="twitter:description"]',d.desc);
+  M2('meta[property="og:locale"]',{fr:'fr_MA',en:'en_US',ar:'ar_MA'}[l]);
+  const sb=document.getElementById('showMenuBtn');if(sb)sb.textContent=document.body.classList.contains('poster')?t('showMenu'):t('menuShown');
+  try{renderNav();if(inCart)openCart();else renderMain();updateBar();}catch(e){}
+  try{window.dispatchEvent(new Event('resize'));}catch(e){}
+}
+function setLang(l){applyLang(l)}
+
+</script>
 <script>
 const WA = "212690190984";
 const MEX_IMG = "data:image/webp;base64,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";
@@ -561,7 +726,7 @@ function renderNav() {
     nav.innerHTML = '';
     Object.keys(M).forEach(k => {
         let btn = document.createElement('button');
-        btn.textContent = (E[k] || '🍽️') + ' ' + k;
+        btn.textContent = (E[k] || '🍽️') + ' ' + catName(k);
         if (k === currentCategory && !norm(searchQ)) btn.className = 'on';
         btn.onclick = () => {
             currentCategory = k;
@@ -647,16 +812,16 @@ function itemEl(cat, item, i) {
     let name = item[0], price = item[1];
     let pHTML = '';
     if (Array.isArray(price)) {
-        pHTML = `<div class="sz"><button class="b" onclick="addToCart('${cat}', ${i}, 0)">Petit: ${price[0]}dh</button><button class="b" onclick="addToCart('${cat}', ${i}, 1)">Grand: ${price[1]}dh</button></div>`;
+        pHTML = `<div class="sz"><button class="b" onclick="addToCart('${cat}', ${i}, 0)">${t('small')}: ${price[0]} ${priceUnit()}</button><button class="b" onclick="addToCart('${cat}', ${i}, 1)">${t('large')}: ${price[1]} ${priceUnit()}</button></div>`;
     } else {
-        pHTML = `<div class="p">${price} DH</div><button class="b" onclick="addToCart('${cat}', ${i})">+</button>`;
+        pHTML = `<div class="p">${price} ${priceUnit()}</div><button class="b" onclick="addToCart('${cat}', ${i})">+</button>`;
     }
     const src = (cat === 'TACOS') ? MEX_IMG : null; // صورة الطاموس بدل الإيموجي لكل أطباق التاكوس
-    const visual = src ? `<img src="${src}" alt="${escHtml(name)}" loading="lazy" decoding="async">` : (E[cat] || '🍽️');
-    const ing = item[2] || ingFor(cat, name);
-    const priceTxt = Array.isArray(price) ? `Petit ${price[0]} DH · Grand ${price[1]} DH` : `${price} DH`;
-    const det = `<div class="d"><div class="di">${ing ? `<div class="dl">🧾 المكونات · Ingrédients</div><div>${escHtml(ing)}</div>` : ''}<div class="dp">💰 السعر · Prix : ${priceTxt}</div></div></div>`;
-    div.innerHTML = `<div class="e">${visual}</div><h3 class="n">${escHtml(name)}</h3>${pHTML}${det}`;
+    const visual = src ? `<img src="${src}" alt="${escHtml(dishName(name))}" loading="lazy" decoding="async">` : (E[cat] || '🍽️');
+    const ing = item[2] || ingText(ingFor(cat, name));
+    const priceTxt = Array.isArray(price) ? `${t('small')} ${price[0]} ${priceUnit()} · ${t('large')} ${price[1]} ${priceUnit()}` : `${price} ${priceUnit()}`;
+    const det = `<div class="d"><div class="di">${ing ? `<div class="dl">${t('ingr')}</div><div>${escHtml(ing)}</div>` : ''}<div class="dp">${t('price')} : ${priceTxt}</div></div></div>`;
+    div.innerHTML = `<div class="e">${visual}</div><h3 class="n">${escHtml(dishName(name))}</h3>${pHTML}${det}`;
     // على اللمس (بدون ماوس): الضغط على البطاقة يفتح/يغلق التفاصيل
     div.addEventListener('click', ev => {
         if (ev.target.closest('button')) return;
@@ -666,6 +831,7 @@ function itemEl(cat, item, i) {
 }
 
 function renderMain() {
+    inCart = false;
     const main = document.getElementById('main');
     const words = norm(searchQ).split(/\s+/).filter(Boolean);
 
@@ -675,22 +841,22 @@ function renderMain() {
         for (const cat in M) {
             const hits = [];
             M[cat].forEach((item, i) => {
-                const n = norm(item[0]);
+                const n = norm(item[0] + ' ' + (DISH_NAMES[item[0]] || []).join(' '));
                 if (words.every(w => n.includes(w))) hits.push([item, i]);
             });
             if (!hits.length) continue;
             found += hits.length;
             const h = document.createElement('div');
             h.style.cssText = 'margin:12px 0 6px;font-weight:800;opacity:.85';
-            h.textContent = (E[cat] || '🍽️') + ' ' + cat;
+            h.textContent = (E[cat] || '🍽️') + ' ' + catName(cat);
             main.appendChild(h);
             hits.forEach(([item, i]) => main.appendChild(itemEl(cat, item, i)));
         }
-        if (!found) main.insertAdjacentHTML('beforeend', '<p class="nores">😕 لا توجد نتائج · Aucun résultat</p>');
+        if (!found) main.insertAdjacentHTML('beforeend', '<p class="nores">' + t('noRes') + '</p>');
         return;
     }
 
-    main.innerHTML = `<h2>${(E[currentCategory] || '🍽️')} ${currentCategory}</h2>`;
+    main.innerHTML = `<h2>${(E[currentCategory] || '🍽️')} ${escHtml(catName(currentCategory))}</h2>`;
     if (!M[currentCategory]) return;
     M[currentCategory].forEach((item, i) => main.appendChild(itemEl(currentCategory, item, i)));
 }
@@ -723,7 +889,7 @@ function addToCart(cat, idx, sizeIdx) {
     if (found) {
         found.qty++;
     } else {
-        cart.push({ cat, idx, sizeIdx, name: name + sizeName, price: finalPrice, qty: 1 });
+        cart.push({ cat, idx, sizeIdx, name: name + sizeName, baseName: name, price: finalPrice, qty: 1 });
     }
     updateBar();
 }
@@ -755,14 +921,14 @@ const TABLE=(function(){
   return t;
 })();
 function tableErrText(){
-  return TABLE_ERR==='MAX' ? 'لا يوجد هذا العدد من الطاولات' : TABLE_ERR==='MIN' ? 'لا توجد هذه الطاولة' : '';
+  return TABLE_ERR==='MAX' ? t('errMax') : TABLE_ERR==='MIN' ? t('errMin') : '';
 }
 (function showTableErr(){
   const msg=tableErrText();if(!msg)return;
   const d=document.createElement('div');
   d.id='tableErrBlock';
   d.style.cssText='position:fixed;inset:0;z-index:2147483647;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:inherit';
-  d.innerHTML='<div style="font-size:64px;margin-bottom:16px">⚠️</div><div style="font-size:26px;font-weight:800;color:#ff5252;line-height:1.6">'+msg+'</div><div style="margin-top:14px;font-size:16px;opacity:.8">الرجاء مسح رمز QR الموجود على طاولتك</div>';
+  d.innerHTML='<div style="font-size:64px;margin-bottom:16px">⚠️</div><div style="font-size:26px;font-weight:800;color:#ff5252;line-height:1.6">'+msg+'</div><div style="margin-top:14px;font-size:16px;opacity:.8">'+t('errQR')+'</div>';
   document.body.appendChild(d);
   document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden';
 })();
@@ -770,16 +936,16 @@ let userLoc = null, locSrc = null, locDesc = '';
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function hasLoc(){return !!(userLoc || locDesc.trim().length >= 3);}
 function setLocDesc(v){locDesc=v;refreshLocStatus();}
-function locStatusText(){return hasLoc() ? '✅ تم تسجيل موقعك' : 'الرجاء وصف مكانك أو تحديده على الخريطة';}
+function locStatusText(){return hasLoc() ? t('locOk') : t('locNeed');}
 function refreshLocStatus(){const el=document.getElementById('locStatus');if(el)el.textContent=locStatusText();}
 function getGPS(){
-    if(!navigator.geolocation){toast("المتصفح لا يدعم GPS، استعمل رابط Google Maps");return;}
-    const el=document.getElementById('locStatus');if(el)el.textContent='⏳ جارٍ تحديد موقعك...';
+    if(!navigator.geolocation){toast(t('locNoGps'));return;}
+    const el=document.getElementById('locStatus');if(el)el.textContent=t('locWait');
     navigator.geolocation.getCurrentPosition(p=>{
         userLoc=`https://www.google.com/maps?q=${p.coords.latitude.toFixed(6)},${p.coords.longitude.toFixed(6)}`;
-        locSrc='gps';toast("تم تحديد موقعك ✅");openCart();
+        locSrc='gps';toast(t('locDone'));openCart();
     },()=>{
-        refreshLocStatus();toast("تعذّر تحديد الموقع. فعّل GPS وأذن للموقع أو الصق رابط Google Maps");
+        refreshLocStatus();toast(t('locFail'));
     },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
 }
 function setLocLink(v){
@@ -794,30 +960,31 @@ function setLocLink(v){
 function openCart() {
     if (TABLE_ERR) return;
     let main = document.getElementById('main');
-    let html = `<h2>🛒 Mon Panier</h2>`;
+    inCart = true;
+    let html = `<h2>${t('cartTitle')}</h2>`;
     if (cart.length === 0) {
-        html += `<p>Le panier est vide.</p>`;
+        html += `<p>${t('cartEmpty')}</p>`;
     } else {
         cart.forEach((c, i) => {
-            html += `<div class="row"><span>${c.name} - ${c.price} DH</span><div class="q"><button onclick="changeQty(${i}, -1)">-</button><span>${c.qty}</span><button onclick="changeQty(${i}, 1)">+</button></div></div>`;
+            html += `<div class="row"><span>${escHtml(cartLabel(c))} - ${c.price} ${priceUnit()}</span><div class="q"><button onclick="changeQty(${i}, -1)">-</button><span>${c.qty}</span><button onclick="changeQty(${i}, 1)">+</button></div></div>`;
         });
         let tot = cart.reduce((s, c) => s + c.price * c.qty, 0);
-        html += `<div class="row tot"><b>Total:</b> <b>${tot} DH</b></div>`;
+        html += `<div class="row tot"><b>${t('total')}</b> <b>${tot} ${priceUnit()}</b></div>`;
         if (TABLE_ERR) { html += `<div style="background:#c62828;color:#fff;border-radius:12px;padding:14px;margin-top:14px;text-align:center;font-size:18px;font-weight:800">⚠️ ${tableErrText()}</div>`; }
-        if (TABLE) { html += `<div style="background:rgba(0,0,0,.55);border:2px solid var(--green);border-radius:12px;padding:14px;margin-top:14px;text-align:center;font-size:20px;font-weight:800">🪑 طاولة رقم · Table ${escHtml(TABLE)}</div>`; }
+        if (TABLE) { html += `<div style="background:rgba(0,0,0,.55);border:2px solid var(--green);border-radius:12px;padding:14px;margin-top:14px;text-align:center;font-size:20px;font-weight:800">${t('table',{n:escHtml(TABLE)})}</div>`; }
         if (!TABLE) {
         html += `<div style="background:rgba(0,0,0,.55);border:1px solid var(--green);border-radius:12px;padding:12px;margin-top:14px">
-            <b>📍 موقعك · Votre position</b>
-            <textarea id="locDesc" rows="3" placeholder="صف لنا مكانك: المدينة، الحي، الشارع، أقرب معلمة، رقم الباب..." oninput="setLocDesc(this.value)" style="width:100%;margin-top:8px;padding:10px;border-radius:9px;border:0;font-size:15px;background:#e6e6e6;color:#111;font-family:inherit;resize:vertical">${escHtml(locDesc)}</textarea>
-            <div style="text-align:center;margin:8px 0;opacity:.8">— أو يمكنك أيضاً / ou aussi —</div>
-            <button class="b" style="width:100%" onclick="getGPS()">📡 تحديد موقعي تلقائياً</button>
+            <b>${t('pos')}</b>
+            <textarea id="locDesc" rows="3" dir="auto" placeholder="${t('posPh')}" oninput="setLocDesc(this.value)" style="width:100%;margin-top:8px;padding:10px;border-radius:9px;border:0;font-size:15px;background:#e6e6e6;color:#111;font-family:inherit;resize:vertical">${escHtml(locDesc)}</textarea>
+            <div style="text-align:center;margin:8px 0;opacity:.8">${t('or')}</div>
+            <button class="b" style="width:100%" onclick="getGPS()">${t('gps')}</button>
             <div style="height:6px"></div>
-            <button class="b" style="width:100%;background:var(--grf)" onclick="window.open('https://www.google.com/maps','_blank')">🗺️ فتح Google Maps</button>
-            <input id="locInput" type="text" dir="ltr" placeholder="أو الصق رابط موقعك من Google Maps" value="${locSrc==='link'?userLoc:''}" oninput="setLocLink(this.value)">
+            <button class="b" style="width:100%;background:var(--grf)" onclick="window.open('https://www.google.com/maps','_blank')">${t('openMaps')}</button>
+            <input id="locInput" type="text" dir="ltr" placeholder="${t('pasteLink')}" value="${locSrc==='link'?userLoc:''}" oninput="setLocLink(this.value)">
             <div id="locStatus" style="font-weight:700;margin-top:4px">${locStatusText()}</div>
         </div>`;
         }
-        html += `<button class="b" style="width:100%;margin-top:15px;" onclick="sendWA()">Envoyer sur WhatsApp 💬</button>`;
+        html += `<button class="b" style="width:100%;margin-top:15px;" onclick="sendWA()">${t('sendWA')}</button>`;
     }
     main.innerHTML = html;
 }
@@ -833,12 +1000,12 @@ function updateBar() {
     let totalQty = cart.reduce((s, c) => s + c.qty, 0);
     let totalPrice = cart.reduce((s, c) => s + c.price * c.qty, 0);
     let btn = document.getElementById('cartBtn');
-    btn.textContent = totalQty > 0 ? `🛒 Panier (${totalQty} articles) - ${totalPrice} DH` : `🛒 Voir le panier`;
+    btn.textContent = totalQty > 0 ? t(totalQty===1?'cartN1':(totalQty===2&&LANG==='ar'?'cartN2':'cartN'),{n:totalQty,p:totalPrice}) : t('cartView');
 }
 
 function sendWA() {
     if (TABLE_ERR) { toast(tableErrText()); return; }
-    if (!TABLE && !hasLoc()) { toast("الرجاء وصف مكانك أو تحديده على الخريطة"); const el=document.getElementById('locDesc'); if(el) el.focus(); return; }
+    if (!TABLE && !hasLoc()) { toast(t('locNeed')); const el=document.getElementById('locDesc'); if(el) el.focus(); return; }
     let txt = "Bonjour, je souhaite commander:%0A";
     cart.forEach(c => { txt += `- ${c.qty}x ${c.name} (${c.price * c.qty} DH)%0A`; });
     let tot = cart.reduce((s, c) => s + c.price * c.qty, 0);
@@ -879,7 +1046,7 @@ function hideMenu(){
     var bb = document.getElementById('backBtn'); if (bb) bb.classList.add('hide');
     var btn = document.getElementById('showMenuBtn');
     if (btn){
-        btn.innerHTML = '\ud83d\udcd6 Voir le menu';
+        btn.textContent = t('showMenu');
         btn.disabled = false;
         btn.style.opacity = '';
         btn.style.cursor = '';
@@ -896,7 +1063,7 @@ function showMenu(){
     });
     var btn = document.getElementById('showMenuBtn');
     if (btn){
-        btn.textContent = '✅ Menu affiché';
+        btn.textContent = t('menuShown');
         btn.disabled = true;
         btn.style.opacity = '.75';
         btn.style.cursor = 'default';
@@ -1283,8 +1450,34 @@ main,#heroWrap{padding-left:max(12px,env(safe-area-inset-left));padding-right:ma
 /* ---------- SEO: نص لمحركات البحث وقارئات الشاشة دون تغيير الشكل ---------- */
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
 h3.n{margin:0;font-size:1em}
+
+/* ---------- زر تبديل اللغة ---------- */
+.langSwitch{position:absolute;top:12px;left:10px;z-index:3;display:inline-flex;align-items:center;gap:0;margin:0;border:2px solid var(--gold);border-radius:22px;overflow:hidden;background:rgba(0,0,0,.55);max-width:100%}
+.langSwitch .lsIcon{padding:0 4px 0 8px;font-size:14px;line-height:1}
+.langSwitch button{font:inherit;font-size:13px;font-weight:800;color:#fff;background:transparent;border:0;padding:6px 9px;min-height:32px;cursor:pointer;white-space:nowrap}
+.langSwitch button{min-width:34px}
+.langSwitch button:first-of-type{padding-left:12px}
+.langSwitch button+button{border-left:1px solid rgba(255,255,255,.25)}
+.langSwitch button.on{background:var(--gold);color:#fff}
+.langSwitch button:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+header{text-align:center}
+
+/* ---------- العربية: اتجاه من اليمين لليسار ---------- */
+html[dir="rtl"] .it{border-left:0;border-right:4px solid var(--gold)}
+html[dir="rtl"] #searchBar input{padding-left:42px;padding-right:14px}
+html[dir="rtl"] #searchClear{right:auto;left:22px}
+html[dir="rtl"] body{font-family:system-ui,"Segoe UI",Tahoma,Roboto,sans-serif}
+@media (max-width:480px){
+  html[dir="rtl"] #searchBar input{padding-left:38px;padding-right:12px}
+  html[dir="rtl"] #searchClear{left:18px}
+  .langSwitch{top:10px;left:6px}
+  .langSwitch .lsIcon{display:none}
+  .langSwitch button{font-size:12px;padding:5px 8px;min-height:30px}
+}
+@media (max-width:360px){.langSwitch button{font-size:11px;padding:5px 6px}}
 </style>
 <!-- ===== /RESPONSIVE ===== -->
 
+<script>applyLang(LANG,true);</script>
 </body>
 </html>
