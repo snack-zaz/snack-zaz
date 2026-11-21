@@ -1069,5 +1069,150 @@ M[c].splice(+i,1);cart=[];updateBar();store(M);populateItemSelect();renderMain()
 <div id="henBg" aria-hidden="true"></div>
 <!-- ===== /HEN BACKGROUND ===== -->
 
+<!-- ===== RESPONSIVE / MOBILE (media queries) ===== -->
+<style>
+/* مساحات آمنة لحواف الهاتف (النتوء) في الوضع الأفقي */
+header{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+nav{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
+main,#heroWrap{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+#bar{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+
+/* البوستر: إزاحة الصورة لأعلى قليلاً (30%) في الوضع العمودي حتى لا يُقصّ عنوان «شري دابا من» على الشاشات القصيرة */
+@media (max-aspect-ratio:1/1){#posterBg .pb-main{object-position:50% 30%}}
+
+/* ---------- لوحي / هاتف كبير ≤ 768px ---------- */
+@media (max-width:768px){
+  header h1{font-size:24px}
+  h2{font-size:21px}
+  input,select,textarea{font-size:16px} /* يمنع تكبير الصفحة تلقائياً في iPhone */
+  .strip img{height:84px}
+  .it .n{min-width:0;overflow-wrap:anywhere}
+}
+
+/* ---------- هواتف ≤ 480px ---------- */
+@media (max-width:480px){
+  /* الترويسة */
+  header{padding-top:12px;padding-bottom:10px}
+  header h1{font-size:22px;letter-spacing:.5px}
+  header small{font-size:12px;margin-top:3px;line-height:1.4}
+  .contact{gap:6px;margin-top:8px}
+  .contact a{padding:8px 12px;font-size:13px}
+
+  /* الصفحة الأولى (البوستر) والأزرار */
+  .heroBtn,body.poster .heroBtn{padding:9px 12px;font-size:13px;gap:6px;border-width:2px}
+  .heroBtn svg{width:17px;height:17px}
+  .heroBtns{gap:7px;margin-top:8px}
+  body.poster #heroWrap{
+    padding-top:max(40px,calc(100vh - var(--hh,0px) - 175px));
+    padding-top:max(40px,calc(100svh - var(--hh,0px) - 175px)); /* يتجنب مشكلة شريط المتصفح في الهاتف */
+  }
+
+  /* شريط الأصناف والبحث */
+  nav{gap:5px;padding-top:6px;padding-bottom:6px}
+  nav button{padding:6px 11px;font-size:13px}
+  #searchBar{margin-top:8px;padding-left:10px;padding-right:10px}
+  #searchBar input{padding:10px 38px 10px 12px}
+  #searchClear{right:18px;width:26px;height:26px}
+
+  /* المحتوى */
+  main{padding-top:8px;padding-bottom:84px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  h2{font-size:18px;margin:14px 0 6px}
+
+  /* بطاقة الطبق */
+  .it{gap:8px;padding:8px;margin-bottom:7px;border-radius:10px}
+  .it .e{width:52px;height:52px;font-size:26px}
+  .it .n{font-size:14.5px;line-height:1.3}
+  .it .p{font-size:13px;white-space:nowrap}
+  .b{padding:7px 10px;font-size:13px;border-radius:9px}
+  /* طبق بحجمين (Petit / Grand): الزرّان في سطر كامل تحت الاسم */
+  .it .sz{flex:0 0 100%;gap:6px}
+  .it .sz .b{flex:1;padding:8px 6px}
+  .it .d{margin-top:-8px}
+  .it.open .d{max-height:320px}
+  .it .di{font-size:13px}
+  .it .dp{font-size:13px}
+
+  /* السلة */
+  .row{font-size:14px;gap:6px;padding:5px 0}
+  .row>span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+  .q{flex:none;white-space:nowrap}
+  .q button{width:34px;height:34px}
+  .tot{margin-top:6px;padding-top:6px;font-size:15px}
+
+  /* شريط السلة السفلي */
+  #bar{padding-top:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  #bar button{font-size:15px;padding:12px}
+
+  /* نوافذ ورسائل */
+  #toast{font-size:13px;padding:8px 12px;max-width:calc(100% - 24px)}
+  #pinBox{padding:14px}
+  #pinBox>div{padding:14px}
+
+  /* لوحة التحكم */
+  .admin-box{padding:10px}
+  #bulkList{max-height:45vh!important}
+  #bulkList>div>span{min-width:0;overflow-wrap:anywhere}
+  .bulkPrice{width:60px!important;padding:8px 4px}
+
+  /* صور جانبية صغيرة */
+  .strip{gap:6px;padding-top:8px}
+  .strip img{height:72px}
+}
+
+/* ---------- هواتف صغيرة جداً ≤ 360px ---------- */
+@media (max-width:360px){
+  header h1{font-size:20px}
+  header small{font-size:11px}
+  .contact a{padding:7px 10px;font-size:12px}
+  .heroBtn,body.poster .heroBtn{padding:8px 10px;font-size:12px}
+  .heroBtn svg{width:15px;height:15px}
+  nav button{padding:5px 9px;font-size:12px}
+  h2{font-size:17px}
+  .it{gap:6px;padding:7px}
+  .it .e{width:46px;height:46px;font-size:23px}
+  .it .n{font-size:14px}
+  .b{padding:6px 8px;font-size:12px}
+  .it .sz .b{padding:7px 4px}
+  .row{font-size:13px}
+  .bulkPrice{width:52px!important}
+}
+
+/* ---------- هاتف بالوضع الأفقي (ارتفاع قصير) ---------- */
+@media (max-height:500px) and (orientation:landscape){
+  header{padding-top:8px;padding-bottom:8px}
+  header h1{font-size:20px}
+  header small{font-size:12px;margin-top:2px}
+  .contact{margin-top:6px}
+  .contact a{padding:6px 12px;font-size:13px}
+  .heroBtn,body.poster .heroBtn{padding:7px 12px;font-size:13px}
+  body.poster #heroWrap{
+    padding-top:max(16px,calc(100vh - var(--hh,0px) - 125px));
+    padding-top:max(16px,calc(100svh - var(--hh,0px) - 125px));
+  }
+  nav{padding-top:5px;padding-bottom:5px}
+  nav button{padding:5px 11px;font-size:13px}
+  main{padding-bottom:72px}
+  #bar{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+  #bar button{padding:9px;font-size:14px}
+  #pinBox{align-items:flex-start;overflow:auto}
+  #bulkList{max-height:40vh!important}
+}
+
+/* ---------- البوستر قابل للتمرير على الهاتف (الوضع العمودي) ----------
+   الصورة تأخذ ارتفاعها الكامل بنسبة 9:16 (أو تملأ الشاشة إن كانت أطول)،
+   والأزرار تبقى في أسفلها، وتمرّر الصفحة لرؤية الصورة كاملة. */
+@media (max-aspect-ratio:1/1) and (max-width:768px){
+  body.poster{--ph:max(calc(100vw * 16 / 9),calc(100vh - var(--hh,0px)))}
+  body.poster #posterBg{position:absolute;bottom:auto;height:var(--ph);top:calc(var(--hh,0px) + env(safe-area-inset-top,0px))}
+  body.poster #heroWrap{padding-top:max(40px,calc(var(--ph) - 175px))}
+}
+@supports (height:100svh){
+  @media (max-aspect-ratio:1/1) and (max-width:768px){
+    body.poster{--ph:max(calc(100vw * 16 / 9),calc(100svh - var(--hh,0px)))}
+  }
+}
+</style>
+<!-- ===== /RESPONSIVE ===== -->
+
 </body>
 </html>
