@@ -292,7 +292,7 @@ const I18N = {
   locDone:"Position enregistrée ✅", locNoGps:"Votre navigateur ne supporte pas le GPS, utilisez un lien Google Maps",
   locFail:"Localisation impossible. Activez le GPS et autorisez l'accès, ou collez un lien Google Maps",
   sendWA:"Envoyer sur WhatsApp 💬", errMax:"Ce nombre de tables n'existe pas", errMin:"Cette table n'existe pas", errQR:"Veuillez scanner le QR code présent sur votre table",
-  switchLabel:"Langue"
+  phonePh:"Votre numéro de téléphone (pour confirmer la commande)", phoneNeed:"Veuillez saisir un numéro de téléphone valide", sending:"⏳ Envoi en cours...", apiFail:"Envoi direct impossible, ouverture de WhatsApp...", doneTitle:"✅ Commande reçue !", doneNo:"Commande n° {id}", doneMsg:"Nous vous contacterons très bientôt pour confirmer. Merci !", doneNew:"Nouvelle commande", switchLabel:"Langue"
  },
  en:{
   dir:'ltr', tag:'en', name:'English',
@@ -309,7 +309,7 @@ const I18N = {
   locDone:"Location saved ✅", locNoGps:"Your browser doesn't support GPS, use a Google Maps link",
   locFail:"Couldn't get your location. Turn on GPS and allow access, or paste a Google Maps link",
   sendWA:"Send on WhatsApp 💬", errMax:"This many tables don't exist", errMin:"This table doesn't exist", errQR:"Please scan the QR code on your table",
-  switchLabel:"Language"
+  phonePh:"Your phone number (to confirm the order)", phoneNeed:"Please enter a valid phone number", sending:"⏳ Sending...", apiFail:"Couldn't send directly, opening WhatsApp...", doneTitle:"✅ Order received!", doneNo:"Order no. {id}", doneMsg:"We will contact you very soon to confirm. Thank you!", doneNew:"New order", switchLabel:"Language"
  },
  ar:{
   dir:'rtl', tag:'ar', name:'العربية',
@@ -326,7 +326,7 @@ const I18N = {
   locDone:"تم تحديد موقعك ✅", locNoGps:"المتصفح لا يدعم GPS، استعمل رابط Google Maps",
   locFail:"تعذّر تحديد الموقع. فعّل GPS وأذن للموقع أو الصق رابط Google Maps",
   sendWA:"إرسال عبر واتساب 💬", errMax:"لا يوجد هذا العدد من الطاولات", errMin:"لا توجد هذه الطاولة", errQR:"الرجاء مسح رمز QR الموجود على طاولتك",
-  switchLabel:"اللغة"
+  phonePh:"رقم هاتفك (لتأكيد الطلب)", phoneNeed:"الرجاء إدخال رقم هاتف صحيح", sending:"⏳ جارٍ الإرسال...", apiFail:"تعذّر الإرسال المباشر، جارٍ فتح واتساب...", doneTitle:"✅ تم استلام طلبك!", doneNo:"طلب رقم {id}", doneMsg:"سنتصل بك قريباً جداً لتأكيد الطلب. شكراً لك!", doneNew:"طلب جديد", switchLabel:"اللغة"
  }
 };
 /* أسماء الأقسام (المفتاح يبقى فرنسياً لأن البيانات والسحابة تعتمد عليه) */
@@ -831,7 +831,7 @@ function itemEl(cat, item, i) {
 }
 
 function renderMain() {
-    inCart = false;
+    inCart = false; doneId = null;
     const main = document.getElementById('main');
     const words = norm(searchQ).split(/\s+/).filter(Boolean);
 
@@ -885,6 +885,7 @@ function addToCart(cat, idx, sizeIdx) {
         sizeName = (sizeIdx === 0 ? ' (Petit)' : ' (Grand)');
     }
     
+    doneId = null;
     let found = cart.find(c => c.cat === cat && c.idx === idx && c.sizeIdx === sizeIdx);
     if (found) {
         found.qty++;
@@ -959,6 +960,7 @@ function setLocLink(v){
 
 function openCart() {
     if (TABLE_ERR) return;
+    if (doneId && cart.length === 0) { renderDone(); return; }
     let main = document.getElementById('main');
     inCart = true;
     let html = `<h2>${t('cartTitle')}</h2>`;
@@ -984,7 +986,8 @@ function openCart() {
             <div id="locStatus" style="font-weight:700;margin-top:4px">${locStatusText()}</div>
         </div>`;
         }
-        html += `<button class="b" style="width:100%;margin-top:15px;" onclick="sendWA()">${t('sendWA')}</button>`;
+        if (ORDER_API_URL && !TABLE) { html += `<input id="custPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel" placeholder="📞 ${t('phonePh')}" value="${escHtml(custPhone)}" oninput="custPhone=this.value" style="margin-top:14px">`; }
+        html += `<button class="b" id="sendBtn" style="width:100%;margin-top:15px;" onclick="sendWA()">${t('sendWA')}</button>`;
     }
     main.innerHTML = html;
 }
@@ -1003,9 +1006,46 @@ function updateBar() {
     btn.textContent = totalQty > 0 ? t(totalQty===1?'cartN1':(totalQty===2&&LANG==='ar'?'cartN2':'cartN'),{n:totalQty,p:totalPrice}) : t('cartView');
 }
 
-function sendWA() {
+/* ===== طلب مباشر عبر API =====
+   ضع هنا رابط الـ Worker بعد نشره (انظر SETUP.md). إن تُرك فارغاً يعمل الموقع كما كان: الطلب يُفتح في واتساب. */
+const ORDER_API_URL = "";
+let custPhone = "", doneId = null, sending = false;
+
+function orderPayload() {
+    return {
+        table: TABLE || null,
+        lang: LANG,
+        phone: TABLE ? null : custPhone.trim(),
+        address: locDesc.trim() || null,
+        mapsLink: userLoc || null,
+        items: cart.map(c => ({ cat: c.cat, idx: c.idx, sizeIdx: (c.sizeIdx === 0 || c.sizeIdx === 1) ? c.sizeIdx : null, name: c.baseName || c.name, qty: c.qty, price: c.price }))
+    };
+}
+function renderDone() {
+    inCart = true;
+    document.getElementById('main').innerHTML = `<div style="text-align:center;padding:30px 10px"><h2 style="border:0">${t('doneTitle')}</h2><p style="font-size:20px;font-weight:800">${t('doneNo',{id:escHtml(doneId)})}</p><p>${t('doneMsg')}</p><button class="b" style="margin-top:14px" onclick="doneId=null;renderMain()">${t('doneNew')}</button></div>`;
+}
+async function sendWA() {
     if (TABLE_ERR) { toast(tableErrText()); return; }
     if (!TABLE && !hasLoc()) { toast(t('locNeed')); const el=document.getElementById('locDesc'); if(el) el.focus(); return; }
+    if (!ORDER_API_URL) { return sendWAFallback(); }
+    if (sending || !cart.length) return;
+    if (!TABLE && !/^\+?[0-9][0-9 .\-]{7,16}$/.test(custPhone.trim())) { toast(t('phoneNeed')); const el=document.getElementById('custPhone'); if(el) el.focus(); return; }
+    sending = true;
+    const btn = document.getElementById('sendBtn'); if (btn) { btn.disabled = true; btn.textContent = t('sending'); }
+    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 12000);
+    try {
+        const r = await fetch(ORDER_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderPayload()), signal: ctl.signal });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || !d.ok) throw new Error('api');
+        doneId = d.id || '—'; cart = []; updateBar(); renderDone();
+    } catch (e) {
+        toast(t('apiFail'));
+        setTimeout(sendWAFallback, 600);   // الطلب لا يضيع أبداً: نرجع لواتساب
+        if (btn) { btn.disabled = false; btn.textContent = t('sendWA'); }
+    } finally { clearTimeout(tm); sending = false; }
+}
+function sendWAFallback() {
     let txt = "Bonjour, je souhaite commander:%0A";
     cart.forEach(c => { txt += `- ${c.qty}x ${c.name} (${c.price * c.qty} DH)%0A`; });
     let tot = cart.reduce((s, c) => s + c.price * c.qty, 0);
@@ -1478,6 +1518,449 @@ html[dir="rtl"] body{font-family:system-ui,"Segoe UI",Tahoma,Roboto,sans-serif}
 </style>
 <!-- ===== /RESPONSIVE ===== -->
 
+<!-- ===== AVIS CLIENTS · تقييمات الزبائن (نجوم + تعليقات) ===== -->
+<style>
+/* ---- شارة التقييم على بطاقة الطبق ---- */
+.nw{flex:1;min-width:0}
+.rvBadge{display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:3px 9px;border:0;border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:12.5px;line-height:1.2;cursor:pointer}
+.rvBadge .rvS{color:#ffc400;font-size:14px}
+.rvBadge .rvN{opacity:.7}
+.rvBadge.none{opacity:.8}
+.rvBadge:focus-visible,.rvStar:focus-visible,.rvX:focus-visible,.rvChip:focus-visible{outline:2px solid #ffc400;outline-offset:2px}
+@media(hover:hover){.rvBadge:hover{background:rgba(255,255,255,.2)}}
+
+/* ---- نجوم بنسب جزئية (4.6 مثلاً) ---- */
+.stars{position:relative;display:inline-block;direction:ltr;white-space:nowrap;letter-spacing:2px;line-height:1;font-size:16px;color:rgba(255,255,255,.28);vertical-align:middle}
+.stars::before{content:'★★★★★'}
+.stars>i{position:absolute;top:0;left:0;width:var(--w,0%);overflow:hidden;white-space:nowrap;color:#ffc400;font-style:normal}
+
+/* ---- زر في الواجهة الرئيسية ---- */
+.heroBtn-rv{background:#1f1f1f!important;color:#ffd400!important;border-color:#ffd400!important}
+
+/* ---- لوحات قسم الآراء ---- */
+#main{scroll-margin-top:64px}
+.rvPanel{background:var(--card);border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px #0006;border-inline-start:4px solid var(--gold)}
+.rvH{margin:14px 0 8px;font-size:16px}
+.rvLbl{display:block;font-weight:700;margin-bottom:4px}
+.rvCta{width:100%;margin-top:6px;padding:12px;font-size:15px}
+.rvMoreBtn{width:100%;margin:4px 0 10px;background:#333}
+.rvSumRow{display:flex;align-items:center;gap:14px}
+.rvAvg{display:flex;align-items:baseline;gap:2px;direction:ltr}
+.rvAvg b{font-size:44px;line-height:1;font-weight:800}
+.rvAvg small{font-size:16px;opacity:.7}
+.rvSumRow .stars{font-size:20px}
+.rvCnt{margin-top:4px;font-size:13px;opacity:.8}
+.rvBars{margin-top:10px;direction:ltr}
+.rvBar{display:flex;align-items:center;gap:8px;font-size:12px;margin:3px 0}
+.rvBar>span{flex:none;width:28px;opacity:.85}
+.rvBar>span:last-child{text-align:right;width:24px}
+.rvBar>i{flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.15);overflow:hidden;display:block}
+.rvBar u{display:block;height:100%;background:#ffc400;text-decoration:none}
+.rvEmpty{margin:4px 0;text-align:center;opacity:.85}
+
+/* ---- بطاقة تعليق ---- */
+.rvRev{padding:10px 0;border-top:1px solid rgba(255,255,255,.14)}
+.rvRev:first-child{border-top:0;padding-top:2px}
+.rvTop{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px}
+.rvTop .stars{font-size:14px}
+.rvWho{font-size:14px}
+.rvDate{font-size:12px;opacity:.65;margin-inline-start:auto}
+.rvTxt{margin:6px 0 0;font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.rvChip{margin-top:6px;padding:2px 10px;border:1px solid rgba(255,255,255,.35);border-radius:12px;background:transparent;color:#fff;font:inherit;font-size:12px;cursor:pointer}
+.rvDel{border:0;background:transparent;font-size:15px;cursor:pointer;padding:2px 4px}
+
+/* ---- النافذة (ورقة سفلية على الهاتف) ---- */
+.rvOv{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.78);display:flex;align-items:flex-end;justify-content:center}
+.rvCard{background:#141414;color:#fff;border:2px solid var(--gold);border-bottom:0;border-radius:16px 16px 0 0;width:100%;max-width:520px;max-height:90vh;max-height:90dvh;overflow-y:auto;overscroll-behavior:contain;padding:14px 14px calc(16px + env(safe-area-inset-bottom,0px));animation:rvUp .25s ease}
+@keyframes rvUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media(min-width:600px){.rvOv{align-items:center;padding:20px}.rvCard{border-bottom:2px solid var(--gold);border-radius:16px}}
+@media(prefers-reduced-motion:reduce){.rvCard{animation:none}}
+.rvHead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rvHead h3{flex:1;margin:0;font-size:19px;line-height:1.3}
+.rvX{flex:none;width:34px;height:34px;border:0;border-radius:50%;background:#333;color:#fff;font-size:15px;cursor:pointer}
+.rvThanks{margin:12px 0;padding:10px;border-radius:10px;background:rgba(22,163,74,.18);text-align:center;font-weight:700}
+
+/* ---- نموذج التقييم ---- */
+.rvQ{margin-top:14px;font-weight:700}
+.rvPick{display:flex;direction:ltr;gap:2px;margin:2px 0}
+.rvStar{width:46px;height:46px;border:0;background:transparent;color:rgba(255,255,255,.3);font-size:34px;line-height:1;cursor:pointer;padding:0;transition:color .15s ease,transform .15s ease}
+.rvStar.on{color:#ffc400}
+.rvStar:active{transform:scale(1.15)}
+.rvPickTxt{min-height:20px;font-weight:700;color:#ffc400}
+#rvForm input,#rvForm textarea{width:100%;padding:10px;margin:5px 0;border:0;border-radius:9px;background:#e6e6e6;color:#111;font:inherit;font-size:16px}
+#rvForm textarea{resize:vertical;min-height:84px}
+.rvSend{width:100%;margin-top:6px;padding:12px;font-size:15px}
+.rvHp{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0!important}
+</style>
+<script>
+(function(){
+/* ---------- الترجمات (تُضاف فوق القاموس الموجود) ---------- */
+Object.assign(I18N.fr,{
+ rvTab:"Avis clients", rvRate:"Noter", rvWrite:"✍️ Donner mon avis", rvYour:"Votre note",
+ rvL1:"Mauvais", rvL2:"Moyen", rvL3:"Bien", rvL4:"Très bien", rvL5:"Excellent",
+ rvNamePh:"Votre prénom (facultatif)", rvTextPh:"Votre commentaire (facultatif) : goût, quantité, livraison…",
+ rvSend:"Publier mon avis", rvSending:"⏳ Envoi en cours…", rvNeedStar:"Choisissez une note de 1 à 5 étoiles",
+ rvThanks:"Merci ! Votre avis est publié ⭐", rvDone:"✅ Merci, votre avis est déjà publié.",
+ rvFail:"Envoi impossible. Vérifiez votre connexion et réessayez.", rvWait:"Patientez quelques secondes avant un nouvel avis",
+ rvNoLinks:"Les liens ne sont pas autorisés dans les commentaires", rvNone:"Aucun avis pour le moment. Soyez le premier à noter !",
+ rvGeneral:"Snack Zaz (le restaurant en général)", rvPickDish:"Que souhaitez-vous noter ?", rvLatest:"Derniers avis",
+ rvMore:"Voir plus d'avis", rvAnon:"Client", rvClose:"Fermer", rvLoading:"Chargement des avis…",
+ rvLoadErr:"Impossible de charger les avis pour le moment.", rvC1:"1 avis", rvCN:"{n} avis"
+});
+Object.assign(I18N.en,{
+ rvTab:"Customer reviews", rvRate:"Rate", rvWrite:"✍️ Write a review", rvYour:"Your rating",
+ rvL1:"Poor", rvL2:"Fair", rvL3:"Good", rvL4:"Very good", rvL5:"Excellent",
+ rvNamePh:"Your first name (optional)", rvTextPh:"Your comment (optional): taste, portion size, delivery…",
+ rvSend:"Post my review", rvSending:"⏳ Sending…", rvNeedStar:"Pick a rating from 1 to 5 stars",
+ rvThanks:"Thank you! Your review is live ⭐", rvDone:"✅ Thanks, your review is already posted.",
+ rvFail:"Couldn't send your review. Check your connection and try again.", rvWait:"Please wait a few seconds before posting another review",
+ rvNoLinks:"Links are not allowed in comments", rvNone:"No reviews yet. Be the first to rate!",
+ rvGeneral:"Snack Zaz (the restaurant overall)", rvPickDish:"What would you like to rate?", rvLatest:"Latest reviews",
+ rvMore:"Show more reviews", rvAnon:"Customer", rvClose:"Close", rvLoading:"Loading reviews…",
+ rvLoadErr:"Couldn't load reviews right now.", rvC1:"1 review", rvCN:"{n} reviews"
+});
+Object.assign(I18N.ar,{
+ rvTab:"آراء الزبائن", rvRate:"قيّم", rvWrite:"✍️ أضف تقييمك", rvYour:"تقييمك",
+ rvL1:"سيئ", rvL2:"مقبول", rvL3:"جيد", rvL4:"جيد جداً", rvL5:"ممتاز",
+ rvNamePh:"اسمك (اختياري)", rvTextPh:"تعليقك (اختياري): المذاق، الكمية، التوصيل…",
+ rvSend:"نشر تقييمي", rvSending:"⏳ جارٍ الإرسال…", rvNeedStar:"اختر تقييماً من 1 إلى 5 نجوم",
+ rvThanks:"شكراً! تم نشر تقييمك ⭐", rvDone:"✅ شكراً، تم نشر تقييمك بالفعل.",
+ rvFail:"تعذر إرسال التقييم. تحقق من الاتصال وحاول مرة أخرى.", rvWait:"انتظر بضع ثوانٍ قبل إرسال تقييم آخر",
+ rvNoLinks:"الروابط غير مسموحة في التعليقات", rvNone:"لا توجد تقييمات بعد. كن أول من يقيّم!",
+ rvGeneral:"سناك زاز (المطعم بشكل عام)", rvPickDish:"ماذا تريد أن تقيّم؟", rvLatest:"أحدث التقييمات",
+ rvMore:"عرض المزيد", rvAnon:"زبون", rvClose:"إغلاق", rvLoading:"جارٍ تحميل التقييمات…",
+ rvLoadErr:"تعذر تحميل التقييمات حالياً.", rvC1:"تقييم واحد", rvC2:"تقييمان", rvCN:"{n} تقييمات", rvCM:"{n} تقييماً"
+});
+
+/* ---------- الحالة والتخزين ---------- */
+var RV={list:[],agg:{},all:null,loaded:false,loading:false,err:false,at:0,cur:null,opener:null,prevOv:'',admin:false,shown:20,last:0};
+var inReviews=false;
+var RV_URL=CLOUD_URL+'/reviews';          /* نفس قاعدة Firebase المستعملة للقائمة */
+var DONE_KEY='yz_rv_done',NAME_KEY='yz_rv_name';
+
+function rvDone(){try{return JSON.parse(localStorage.getItem(DONE_KEY)||'{}')||{}}catch(e){return {}}}
+function rvMarkDone(d,id){try{var m=rvDone();m[d]=id||1;localStorage.setItem(DONE_KEY,JSON.stringify(m))}catch(e){}}
+function rvCnt(n){
+  if(n===1)return t('rvC1');
+  if(LANG==='ar'){if(n===2)return t('rvC2');if(n>10)return t('rvCM',{n:n})}
+  return t('rvCN',{n:n});
+}
+function rvDate(ts){
+  try{return new Date(ts).toLocaleDateString({fr:'fr-FR',en:'en-GB',ar:'ar-MA'}[LANG]||'fr-FR',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}
+}
+function rvStars(avg){
+  return '<span class="stars" aria-hidden="true" style="--w:'+Math.max(0,Math.min(100,avg/5*100)).toFixed(1)+'%"><i>★★★★★</i></span>';
+}
+function rvEmptyStat(){return {n:0,s:0,dist:[0,0,0,0,0]}}
+
+function rvAggregate(){
+  var a={},all=rvEmptyStat();
+  RV.list.forEach(function(x){
+    var g=a[x.d]||(a[x.d]=rvEmptyStat());
+    g.n++;g.s+=x.r;g.dist[x.r-1]++;
+    all.n++;all.s+=x.r;all.dist[x.r-1]++;
+  });
+  RV.agg=a;RV.all=all;
+}
+rvAggregate();
+
+/* آخر 300 تقييماً فقط (مفاتيح Firebase مرتبة زمنياً) لتبقى الصفحة خفيفة */
+function rvLoad(force){
+  if(RV.loading)return;
+  if(!force&&RV.loaded&&Date.now()-RV.at<60000)return;
+  RV.loading=true;
+  fetch(RV_URL+'.json?orderBy=%22%24key%22&limitToLast=300',{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw 0;return r.json()})
+    .then(function(d){
+      var out=[];
+      if(d&&typeof d==='object'){
+        Object.keys(d).forEach(function(id){
+          var v=d[id];
+          if(!v||typeof v!=='object')return;
+          if(!(Number.isInteger(v.r)&&v.r>=1&&v.r<=5))return;
+          if(typeof v.d!=='string'||!v.d||v.d.length>120)return;
+          if(typeof v.ts!=='number')return;
+          out.push({id:id,d:v.d,r:v.r,ts:v.ts,n:String(v.n||'').slice(0,30),c:String(v.c||'').slice(0,300)});
+        });
+      }
+      RV.list=out;RV.loaded=true;RV.err=false;
+    })
+    .catch(function(){RV.err=true})
+    .then(function(){RV.loading=false;RV.at=Date.now();rvRefresh()});
+}
+
+/* ---------- شارات البطاقات + زر الواجهة ---------- */
+function rvPaintBadge(b){
+  var a=RV.agg[b.getAttribute('data-rv-d')];
+  if(a&&a.n){
+    b.className='rvBadge';
+    b.innerHTML='<span class="rvS">★</span><b>'+(a.s/a.n).toFixed(1)+'</b><span class="rvN">('+a.n+')</span>';
+    b.setAttribute('aria-label',(a.s/a.n).toFixed(1)+'/5 · '+rvCnt(a.n));
+  }else{
+    b.className='rvBadge none';
+    b.innerHTML='<span class="rvS">☆</span>'+escHtml(t('rvRate'));
+    b.setAttribute('aria-label',t('rvRate'));
+  }
+}
+function rvPaintHero(){
+  var b=document.getElementById('rvHeroBtn');if(!b)return;
+  var st=RV.all;
+  b.textContent=(st&&st.n)?('⭐ '+(st.s/st.n).toFixed(1)+'/5 · '+rvCnt(st.n)):('⭐ '+t('rvTab'));
+}
+function rvPaintAll(){
+  document.querySelectorAll('.rvBadge').forEach(rvPaintBadge);
+  rvPaintHero();
+}
+function rvInitHero(){
+  var w=document.querySelector('.heroBtns');
+  if(!w||document.getElementById('rvHeroBtn'))return;
+  var b=document.createElement('button');
+  b.type='button';b.id='rvHeroBtn';b.className='heroBtn heroBtn-rv';
+  b.onclick=function(){showMenu();rvGoTab()};
+  w.appendChild(b);
+}
+function rvGoTab(){
+  inReviews=true;clearSearch(false);renderNav();renderMain();
+  var m=document.getElementById('main');
+  if(m&&m.getBoundingClientRect().top<0)m.scrollIntoView({block:'start'});
+}
+
+/* ---------- عناصر العرض ---------- */
+function rvItem(x,showDish){
+  var dish=(showDish&&x.d!=='*')?'<button type="button" class="rvChip" data-rv-d="'+escHtml(x.d)+'">'+escHtml(dishName(x.d))+'</button>':'';
+  return '<div class="rvRev"><div class="rvTop">'+rvStars(x.r)+'<b class="rvWho">'+escHtml(x.n||t('rvAnon'))+'</b><span class="rvDate">'+escHtml(rvDate(x.ts))+'</span>'
+    +(RV.admin?'<button type="button" class="rvDel" data-rv-del="'+escHtml(x.id)+'" aria-label="حذف">🗑</button>':'')
+    +'</div>'+dish+(x.c?'<p class="rvTxt" dir="auto">'+escHtml(x.c)+'</p>':'')+'</div>';
+}
+function rvSumHTML(st){
+  if(!RV.loaded)return '<p class="rvEmpty">'+escHtml(RV.err?t('rvLoadErr'):t('rvLoading'))+'</p>';
+  if(!st||!st.n)return '<p class="rvEmpty">'+escHtml(t('rvNone'))+'</p>';
+  var avg=st.s/st.n,rows='';
+  for(var k=5;k>=1;k--){var c=st.dist[k-1];rows+='<div class="rvBar"><span>'+k+'★</span><i><u style="width:'+(c/st.n*100).toFixed(0)+'%"></u></i><span>'+c+'</span></div>'}
+  return '<div class="rvSumRow"><div class="rvAvg"><b>'+avg.toFixed(1)+'</b><small>/5</small></div><div>'+rvStars(avg)+'<div class="rvCnt">'+escHtml(rvCnt(st.n))+'</div></div></div><div class="rvBars">'+rows+'</div>';
+}
+
+/* ---------- تبويب «آراء الزبائن» داخل القائمة ---------- */
+function rvRenderTab(){
+  var main=document.getElementById('main');if(!main)return;
+  try{doneId=null}catch(e){}
+  var opts='<option value="*">'+escHtml(t('rvGeneral'))+'</option>';
+  for(var c in M){
+    opts+='<optgroup label="'+escHtml((E[c]||'🍽️')+' '+catName(c))+'">';
+    M[c].forEach(function(it){opts+='<option value="'+escHtml(it[0])+'">'+escHtml(dishName(it[0]))+'</option>'});
+    opts+='</optgroup>';
+  }
+  main.innerHTML='<h2>⭐ '+escHtml(t('rvTab'))+'</h2><div id="rvTabRoot">'
+    +'<div class="rvPanel" id="rvTabSum"></div>'
+    +'<div class="rvPanel"><label class="rvLbl" for="rvDishSel">'+escHtml(t('rvPickDish'))+'</label><select id="rvDishSel">'+opts+'</select>'
+    +'<button type="button" class="b rvCta" id="rvCtaBtn">'+escHtml(t('rvWrite'))+'</button></div>'
+    +'<h3 class="rvH hide" id="rvLatestH">'+escHtml(t('rvLatest'))+'</h3><div id="rvTabList"></div>'
+    +'<button type="button" class="b rvMoreBtn hide" id="rvMoreBtn">'+escHtml(t('rvMore'))+'</button></div>';
+  document.getElementById('rvCtaBtn').onclick=function(){rvOpen(document.getElementById('rvDishSel').value)};
+  document.getElementById('rvMoreBtn').onclick=function(){RV.shown+=20;rvFillTab()};
+  RV.shown=20;
+  rvLoad(false);
+  rvFillTab();
+}
+function rvFillTab(){
+  var s=document.getElementById('rvTabSum');if(!s)return;
+  s.innerHTML=rvSumHTML(RV.all);
+  var sorted=RV.list.slice().sort(function(a,b){return b.ts-a.ts});
+  document.getElementById('rvTabList').innerHTML=sorted.length?'<div class="rvPanel">'+sorted.slice(0,RV.shown).map(function(x){return rvItem(x,true)}).join('')+'</div>':'';
+  document.getElementById('rvLatestH').classList.toggle('hide',!sorted.length);
+  document.getElementById('rvMoreBtn').classList.toggle('hide',sorted.length<=RV.shown);
+}
+
+/* ---------- نافذة طبق واحد: الملخص + التعليقات + نموذج التقييم ---------- */
+function rvFormHTML(){
+  var nm='';try{nm=localStorage.getItem(NAME_KEY)||''}catch(e){}
+  var st='';
+  for(var i=1;i<=5;i++)st+='<button type="button" class="rvStar" role="radio" aria-checked="false" tabindex="'+(i===1?0:-1)+'" aria-label="'+i+'/5">★</button>';
+  return '<form id="rvForm" novalidate><div class="rvQ" id="rvQ">'+escHtml(t('rvYour'))+'</div>'
+    +'<div class="rvPick" role="radiogroup" aria-labelledby="rvQ">'+st+'</div><div class="rvPickTxt" id="rvPickTxt" aria-live="polite"></div>'
+    +'<div class="rvMore hide"><input type="text" id="rvName" maxlength="30" autocomplete="given-name" placeholder="'+escHtml(t('rvNamePh'))+'" value="'+escHtml(nm)+'">'
+    +'<textarea id="rvText" maxlength="300" rows="3" dir="auto" placeholder="'+escHtml(t('rvTextPh'))+'"></textarea>'
+    +'<input type="text" class="rvHp" id="rvHp" tabindex="-1" autocomplete="off" aria-hidden="true">'
+    +'<button type="submit" class="b rvSend" id="rvSend">'+escHtml(t('rvSend'))+'</button></div></form>';
+}
+function rvBuild(){
+  var box=document.getElementById('rvBox');if(!box||RV.cur===null)return;
+  var d=RV.cur,title=d==='*'?t('rvGeneral'):dishName(d);
+  var form=rvDone()[d]?'<p class="rvThanks">'+escHtml(t('rvDone'))+'</p>':rvFormHTML();
+  box.innerHTML='<div class="rvCard" role="dialog" aria-modal="true" aria-labelledby="rvTitle">'
+    +'<div class="rvHead"><h3 id="rvTitle">'+escHtml(title)+'</h3><button type="button" class="rvX" id="rvClose" aria-label="'+escHtml(t('rvClose'))+'">✕</button></div>'
+    +'<div id="rvSumBox"></div>'+form+'<div id="rvListBox"></div></div>';
+  document.getElementById('rvClose').onclick=rvClose;
+  rvFillModal();
+  rvBindForm();
+}
+function rvFillModal(){
+  var sum=document.getElementById('rvSumBox');if(!sum||RV.cur===null)return;
+  var d=RV.cur;
+  sum.innerHTML=rvSumHTML(RV.agg[d]);
+  document.getElementById('rvListBox').innerHTML=RV.list.filter(function(x){return x.d===d}).sort(function(a,b){return b.ts-a.ts}).slice(0,30).map(function(x){return rvItem(x,false)}).join('');
+}
+function rvBindForm(){
+  var form=document.getElementById('rvForm');if(!form)return;
+  var btns=Array.prototype.slice.call(form.querySelectorAll('.rvStar')),
+      txt=document.getElementById('rvPickTxt'),more=form.querySelector('.rvMore'),val=0;
+  function set(v,focus){
+    val=v;
+    btns.forEach(function(b,i){
+      b.classList.toggle('on',i<v);
+      b.setAttribute('aria-checked',String(i+1===v));
+      b.tabIndex=(i+1===v||(!v&&i===0))?0:-1;
+    });
+    txt.textContent=v?t('rvL'+v):'';
+    more.classList.toggle('hide',!v);
+    if(focus)btns[v-1].focus();
+  }
+  btns.forEach(function(b,i){
+    b.onclick=function(){set(i+1)};
+    b.onkeydown=function(e){
+      if(e.key==='ArrowRight'||e.key==='ArrowUp'){e.preventDefault();set(Math.min(5,(val||0)+1),true)}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowDown'){e.preventDefault();set(Math.max(1,(val||2)-1),true)}
+    };
+  });
+  form.onsubmit=function(e){e.preventDefault();rvSubmit(val)};
+}
+function rvSubmit(val){
+  if(!val){toast(t('rvNeedStar'));return}
+  if(document.getElementById('rvHp').value)return;            /* فخّ للروبوتات */
+  if(Date.now()-RV.last<20000){toast(t('rvWait'));return}
+  var name=document.getElementById('rvName').value.trim().slice(0,30),
+      text=document.getElementById('rvText').value.trim().slice(0,300);
+  if(/https?:\/\/|www\./i.test(name+' '+text)){toast(t('rvNoLinks'));return}
+  var rec={d:RV.cur,r:val,ts:Date.now(),lg:LANG};
+  if(name)rec.n=name;
+  if(text)rec.c=text;
+  var btn=document.getElementById('rvSend');btn.disabled=true;btn.textContent=t('rvSending');
+  fetch(RV_URL+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)})
+    .then(function(r){if(!r.ok)throw 0;return r.json()})
+    .then(function(j){
+      RV.list.push({id:j.name,d:rec.d,r:rec.r,ts:rec.ts,n:rec.n||'',c:rec.c||''});
+      RV.last=Date.now();
+      rvMarkDone(rec.d,j.name);
+      try{if(name)localStorage.setItem(NAME_KEY,name)}catch(e){}
+      toast(t('rvThanks'));
+      rvAggregate();rvPaintAll();rvBuild();
+      if(inReviews)rvFillTab();
+    })
+    .catch(function(){
+      toast(t('rvFail'));
+      var b=document.getElementById('rvSend');if(b){b.disabled=false;b.textContent=t('rvSend')}
+    });
+}
+function rvOpen(d){
+  if(d===undefined||d===null)return;
+  var box=document.getElementById('rvBox');
+  if(!box){
+    box=document.createElement('div');box.id='rvBox';box.className='rvOv hide';
+    box.addEventListener('click',function(e){if(e.target===box)rvClose()});
+    document.body.appendChild(box);
+  }
+  if(box.classList.contains('hide')){RV.opener=document.activeElement;RV.prevOv=document.body.style.overflow}
+  RV.cur=d;
+  rvLoad(false);
+  box.classList.remove('hide');
+  document.body.style.overflow='hidden';
+  rvBuild();
+  var f=box.querySelector('.rvStar')||document.getElementById('rvClose');
+  if(f)f.focus();
+}
+function rvClose(){
+  var box=document.getElementById('rvBox');
+  if(!box||box.classList.contains('hide'))return;
+  box.classList.add('hide');box.innerHTML='';
+  document.body.style.overflow=RV.prevOv||'';
+  RV.cur=null;
+  try{if(RV.opener&&document.contains(RV.opener))RV.opener.focus()}catch(e){}
+}
+function rvDelete(id){
+  if(!RV.admin||!id)return;
+  if(!confirm('حذف هذا التقييم نهائياً؟'))return;
+  fetch(RV_URL+'/'+encodeURIComponent(id)+'.json',{method:'DELETE'})
+    .then(function(r){if(!r.ok)throw 0;RV.list=RV.list.filter(function(x){return x.id!==id});rvRefresh();toast('تم حذف التقييم')})
+    .catch(function(){toast('تعذر حذف التقييم (تحقق من قواعد Firebase)')});
+}
+function rvRefresh(){
+  rvAggregate();rvPaintAll();
+  if(inReviews&&!norm(searchQ)&&document.getElementById('rvTabRoot'))rvFillTab();
+  var box=document.getElementById('rvBox');
+  if(box&&!box.classList.contains('hide'))rvFillModal();
+}
+
+/* ---------- ربط الميزة بالكود الموجود (دون تعديله) ---------- */
+/* 1) شارة النجوم تحت اسم كل طبق */
+var _itemEl=itemEl;
+itemEl=function(cat,item,i){
+  var div=_itemEl.apply(this,arguments);
+  try{
+    var h=div.querySelector('h3.n');
+    if(h){
+      var w=document.createElement('div');w.className='nw';
+      h.replaceWith(w);w.appendChild(h);
+      var b=document.createElement('button');b.type='button';b.className='rvBadge';b.setAttribute('data-rv-d',item[0]);
+      w.appendChild(b);rvPaintBadge(b);
+    }
+  }catch(e){}
+  return div;
+};
+/* 2) زر «آراء الزبائن» في شريط الأقسام */
+var _renderNav=renderNav;
+renderNav=function(){
+  _renderNav.apply(this,arguments);
+  var nav=document.getElementById('nav');if(!nav)return;
+  if(!nav._rvBound){
+    nav._rvBound=true;
+    nav.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button');if(b&&b.id!=='rvNavBtn')inReviews=false},true);
+  }
+  var b=document.createElement('button');
+  b.type='button';b.id='rvNavBtn';b.textContent='⭐ '+t('rvTab');
+  if(inReviews&&!norm(searchQ)){nav.querySelectorAll('button.on').forEach(function(x){x.classList.remove('on')});b.className='on'}
+  b.onclick=rvGoTab;
+  nav.appendChild(b);
+};
+/* 3) عرض التبويب بدل القائمة عند اختياره */
+var _renderMain=renderMain;
+renderMain=function(){
+  if(norm(searchQ))inReviews=false;
+  if(inReviews){inCart=false;rvRenderTab();return}
+  _renderMain.apply(this,arguments);
+};
+var _openCart=openCart;
+openCart=function(){inReviews=false;return _openCart.apply(this,arguments)};
+/* 4) تغيير اللغة */
+var _applyLang=applyLang;
+applyLang=function(){
+  _applyLang.apply(this,arguments);
+  try{rvInitHero();rvPaintAll();if(RV.cur!==null)rvBuild()}catch(e){}
+};
+/* 5) لوحة التحكم السرية: إظهار زر الحذف على التعليقات */
+var _togglePE=togglePriceEditor;
+togglePriceEditor=function(){
+  _togglePE.apply(this,arguments);
+  var p=document.getElementById('priceEditorPanel');
+  RV.admin=!!p&&!p.classList.contains('hide');
+  rvRefresh();
+};
+var _closePE=closePriceEditor;
+closePriceEditor=function(){_closePE.apply(this,arguments);RV.admin=false;rvRefresh()};
+
+/* ---------- أحداث عامة ---------- */
+document.addEventListener('click',function(e){
+  var el=e.target.closest?e.target:null;if(!el)return;
+  var del=el.closest('[data-rv-del]');
+  if(del){e.preventDefault();rvDelete(del.getAttribute('data-rv-del'));return}
+  var op=el.closest('[data-rv-d]');
+  if(op){e.preventDefault();rvOpen(op.getAttribute('data-rv-d'))}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')rvClose()});
+
+rvLoad(true);
+})();
+</script>
+<!-- ===== /AVIS CLIENTS ===== -->
 <script>applyLang(LANG,true);</script>
 </body>
 </html>
