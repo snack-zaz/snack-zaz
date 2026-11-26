@@ -102,6 +102,7 @@
         .b{background:var(--gf);color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;}
         .b:disabled{background:#999}
         .sz{display:flex;gap:6px}
+        .sz3 .b{font-size:12px;padding-inline:4px;min-width:0}
         #bar{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--dark);border-top:2px solid var(--gold);z-index:6}
         #bar button{width:100%;font-size:16px;padding:13px}
         input,select{width:100%;padding:10px;border-radius:9px;border:0;margin:4px 0;font-size:15px;background:#fff;color:#222}
@@ -287,7 +288,7 @@ const I18N = {
   h1sr:" – Snack et livraison à domicile à Fès : tacos, pizza, burgers · سناك زاز فاس",
   tagline:"Livraison jusqu'à domicile", map:"Google Maps · Localisation", showMenu:"📖 Voir le menu", menuShown:"✅ Menu affiché",
   back:"⬅ Retour", navLabel:"Catégories du menu", search:"🔍 Rechercher un plat...", clear:"Effacer", noRes:"😕 Aucun résultat",
-  ingr:"🧾 Ingrédients", price:"💰 Prix", small:"Petit", large:"Grand",
+  ingr:"🧾 Ingrédients", price:"💰 Prix", small:"Petit", medium:"Moyenne (M)", large:"Grand",
   cartView:"🛒 Voir le panier", cartN:"🛒 Panier ({n} articles) - {p} DH", cartN1:"🛒 Panier (1 article) - {p} DH", cartTitle:"🛒 Mon Panier", cartEmpty:"Le panier est vide.", total:"Total :",
   table:"🪑 Table n° {n}", pos:"📍 Votre position", posPh:"Décrivez votre adresse : ville, quartier, rue, point de repère, n° de porte...",
   or:"— ou aussi —", gps:"📡 Me localiser automatiquement", openMaps:"🗺️ Ouvrir Google Maps", pasteLink:"Ou collez le lien de votre position Google Maps",
@@ -304,7 +305,7 @@ const I18N = {
   h1sr:" – Snack and home delivery in Fez: tacos, pizza, burgers · Snack Zaz Fès",
   tagline:"Delivery right to your door", map:"Google Maps · Location", showMenu:"📖 View menu", menuShown:"✅ Menu displayed",
   back:"⬅ Back", navLabel:"Menu categories", search:"🔍 Search for a dish...", clear:"Clear", noRes:"😕 No results",
-  ingr:"🧾 Ingredients", price:"💰 Price", small:"Small", large:"Large",
+  ingr:"🧾 Ingredients", price:"💰 Price", small:"Small", medium:"Medium (M)", large:"Large",
   cartView:"🛒 View cart", cartN:"🛒 Cart ({n} items) - {p} DH", cartN1:"🛒 Cart (1 item) - {p} DH", cartTitle:"🛒 My Cart", cartEmpty:"Your cart is empty.", total:"Total:",
   table:"🪑 Table no. {n}", pos:"📍 Your location", posPh:"Describe where you are: city, neighbourhood, street, nearest landmark, door number...",
   or:"— or —", gps:"📡 Locate me automatically", openMaps:"🗺️ Open Google Maps", pasteLink:"Or paste your Google Maps location link",
@@ -321,7 +322,7 @@ const I18N = {
   h1sr:" – سناك وتوصيل إلى المنزل بفاس: تاكوس، بيتزا، برغر · Snack Zaz",
   tagline:"التوصيل حتى الدار", map:"Google Maps · الموقع", showMenu:"📖 عرض القائمة", menuShown:"✅ القائمة معروضة",
   back:"⬅ رجوع", navLabel:"أقسام القائمة", search:"🔍 ابحث عن وجبة...", clear:"مسح", noRes:"😕 لا توجد نتائج",
-  ingr:"🧾 المكونات", price:"💰 السعر", small:"صغير", large:"كبير",
+  ingr:"🧾 المكونات", price:"💰 السعر", small:"صغير", medium:"وسط (M)", large:"كبير",
   cartView:"🛒 عرض السلة", cartN:"🛒 السلة ({n} منتجات) - {p} درهم", cartN1:"🛒 السلة (منتج واحد) - {p} درهم", cartN2:"🛒 السلة (منتجان) - {p} درهم", cartTitle:"🛒 سلتي", cartEmpty:"السلة فارغة.", total:"المجموع:",
   table:"🪑 طاولة رقم {n}", pos:"📍 موقعك", posPh:"صف لنا مكانك: المدينة، الحي، الشارع، أقرب معلمة، رقم الباب...",
   or:"— أو يمكنك أيضاً —", gps:"📡 تحديد موقعي تلقائياً", openMaps:"🗺️ فتح Google Maps", pasteLink:"أو الصق رابط موقعك من Google Maps",
@@ -347,7 +348,7 @@ const DISH_NAMES = {
  "Tacos Viande Hachée":["Minced Beef Tacos", "تاكوس لحم مفروم"],
  "Tacos Nuggets":["Nuggets Tacos", "تاكوس ناجتس"],
  "Tacos Saucisse":["Sausage Tacos", "تاكوس نقانق"],
- "Tacos Mixte":["Mixed Tacos", "تاكوس مشكل"],
+ "Tacos Mixte":["Mixed Tacos", "تاكوس مشكل"], "Tacos Fruit de Mer":["Seafood Tacos", "تاكوس فواكه البحر"], "Tacos Zaz":["Zaz Tacos", "تاكوس زاز"], "Pizza Zaz":["Zaz Pizza", "بيتزا زاز"], "Pizza Thon":["Tuna Pizza", "بيتزا تونة"],
  "Tacos Crispy":["Crispy Tacos", "تاكوس كريسبي"],
  "Tacos Gratiné":["Gratin Tacos", "تاكوس غراتان"],
  "Sandwich Poulet":["Chicken Sandwich", "ساندويتش دجاج"],
@@ -421,10 +422,10 @@ function t(k,v){let s=(I18N[LANG]&&I18N[LANG][k]);if(s===undefined)s=I18N.fr[k]|
 function catName(c){return (CAT_NAMES[c]&&CAT_NAMES[c][LANG])||c}
 function dishName(n){if(LANG==='fr'||!DISH_NAMES[n])return n;return DISH_NAMES[n][LANG==='en'?0:1]}
 function ingText(s){if(LANG==='fr'||!s)return s;return s.split(', ').map(p=>{let suf='';const x=p.match(/^(.*?)( \(x2\))$/);if(x){p=x[1];suf=x[2]}const m=ING[p]||ING[p.trim()];return (m?m[LANG==='en'?0:1]:p)+suf}).join(LANG==='ar'?'، ':', ')}
-function sizeLabel(i){return i===0?t('small'):t('large')}
+function sizeLabel(i,n){const L=LANG==='en'?['S','M','L']:['P','M','G'];return n===3?L[i]:(i===0?L[0]:L[2])}
 function priceUnit(){return LANG==='ar'?'درهم':'DH'}
 
-function cartLabel(c){const base=c.baseName||c.name;return dishName(base)+((c.sizeIdx===0||c.sizeIdx===1)?' ('+sizeLabel(c.sizeIdx)+')':'')}
+function cartLabel(c){const base=c.baseName||c.name;return dishName(base)+((typeof c.sizeIdx==='number')?' ('+sizeLabel(c.sizeIdx,c.nSizes)+')':'')}
 var inCart=false;
 /* اختيار اللغة: ?lang=xx ثم آخر اختيار محفوظ ثم لغة المتصفح ثم الفرنسية */
 function detectLang(){
@@ -499,9 +500,9 @@ function imgFor(cat, name) {
 
 const defaultMenu = {
     TACOS: [
-        ["Tacos Poulet", [20, 30]], ["Tacos Viande Hachée", [20, 30]], ["Tacos Nuggets", [20, 30]],
-        ["Tacos Saucisse", [20, 30]], ["Tacos Mixte", [20, 30]], ["Tacos Crispy", [20, 30]],
-        ["Tacos Gratiné", [20, 30]]
+        ["Tacos Zaz", [25, 30, 35]], ["Tacos Poulet", [20, 30, 35]], ["Tacos Viande Hachée", [20, 30, 35]], ["Tacos Nuggets", [20, 30, 35]],
+        ["Tacos Mixte", [20, 30, 35]], ["Tacos Crispy", [20, 30, 35]],
+        ["Tacos Gratiné", [20, 30, 35]], ["Tacos Fruit de Mer", [25, 30, 35]]
     ],
     SANDWICHS: [
         ["Sandwich Poulet", [15, 20]], ["Sandwich Viande Hachée", [15, 20]], ["Sandwich Saucisse", [15, 20]],
@@ -518,8 +519,8 @@ const defaultMenu = {
         ["Frites", 5]
     ],
     PIZZA: [
-        ["Pizza Poulet", [20, 25]], ["Pizza Viande Hachée", [20, 25]], ["Pizza 4 Saisons", [20, 25]],
-        ["Pizza Végétarienne", [20, 25]], ["Pizza 4 Fromages", [20, 25]], ["Pizza Fruits de Mer", [30, 40]]
+        ["Pizza Zaz", [20, 30, 35]], ["Pizza Poulet", [25, 30, 35]], ["Pizza Viande Hachée", [20, 30, 35]], ["Pizza 4 Saisons", [25, 30, 35]],
+        ["Pizza 4 Fromages", [25, 30, 35]], ["Pizza Fruits de Mer", [30, 35, 40]], ["Pizza Thon", [20, 25, 30]]
     ],
     CHAWARMA: [
         ["Shawarma Normal", 20], ["Shawarma Mixte", 25], ["Assiette Shawarma", 30]
@@ -549,7 +550,48 @@ const CLOUD_URL="https://snack-zazz-default-rtdb.europe-west1.firebasedatabase.a
 function store(v){try{localStorage.setItem("yassinos_custom_menu_v4",JSON.stringify(v));}catch(e){}
 try{fetch(CLOUD_URL+"/menu_v4.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(JSON.stringify(v))}).then(r=>{if(!r.ok)throw 0;}).catch(()=>{try{toast("تعذر الحفظ على السحابة، تحقق من الإنترنت");}catch(e){}});}catch(e){}}
 let savedMenu=null;try{savedMenu=localStorage.getItem("yassinos_custom_menu_v4");}catch(e){}
+/* ترحيل قسم التاكوس: حذف Saucisse، 3 أحجام (Petit / Moyenne (M) / Grand=35)، إضافة Fruit de Mer و Zaz */
+function migrateTacos(m){
+    let ch=false;
+    if(!m||!Array.isArray(m.TACOS))return false;
+    const zi=m.TACOS.findIndex(it=>it[0]==="Tacos Zaz");
+    const needs=m.TACOS.some(it=>it[0]==="Tacos Saucisse"||(Array.isArray(it[1])&&it[1].length===2));
+    if(!needs){
+        if(zi>0){m.TACOS.unshift(m.TACOS.splice(zi,1)[0]);return true;}
+        return false;
+    }
+    const before=m.TACOS.length;
+    m.TACOS=m.TACOS.filter(it=>it[0]!=="Tacos Saucisse");
+    if(m.TACOS.length!==before)ch=true;
+    m.TACOS.forEach(it=>{if(Array.isArray(it[1])&&it[1].length===2){it[1]=[it[1][0],it[1][1],35];ch=true;}});
+    [["Tacos Fruit de Mer",[25,30,35]],["Tacos Zaz",[25,30,35]]].forEach(n=>{
+        if(!m.TACOS.some(it=>it[0]===n[0])){m.TACOS.push([n[0],n[1].slice()]);ch=true;}
+    });
+    const z2=m.TACOS.findIndex(it=>it[0]==="Tacos Zaz");
+    if(z2>0){m.TACOS.unshift(m.TACOS.splice(z2,1)[0]);ch=true;}
+    return ch;
+}
+function migratePizza(m){
+    if(!m||!Array.isArray(m.PIZZA))return false;
+    if(m.PIZZA.some(it=>it[0]==="Pizza Zaz"))return false;
+    m.PIZZA.unshift(["Pizza Zaz",[20,30,35]]);
+    return true;
+}
+/* ترحيل البيتزا: 3 أحجام (P/M/G)، حذف Végétarienne، إضافة Thon */
+function migratePizzaPrices(m){
+    if(!m||!Array.isArray(m.PIZZA))return false;
+    let forced=false;try{forced=!localStorage.getItem("pizza_prices_v5");}catch(e){}
+    const needs=forced||m.PIZZA.some(it=>it[0]==="Pizza Végétarienne"||(Array.isArray(it[1])&&it[1].length===2));
+    if(!needs)return false;
+    try{localStorage.setItem("pizza_prices_v5","1");}catch(e){}
+    const P={"Pizza Poulet":[25,30,35],"Pizza Viande Hachée":[20,30,35],"Pizza 4 Saisons":[25,30,35],"Pizza 4 Fromages":[25,30,35],"Pizza Fruits de Mer":[30,35,40]};
+    m.PIZZA=m.PIZZA.filter(it=>it[0]!=="Pizza Végétarienne");
+    m.PIZZA.forEach(it=>{if(P[it[0]])it[1]=P[it[0]].slice();});
+    if(!m.PIZZA.some(it=>it[0]==="Pizza Thon"))m.PIZZA.push(["Pizza Thon",[20,25,30]]);
+    return true;
+}
 let M = savedMenu ? JSON.parse(savedMenu) : defaultMenu;
+migrateTacos(M);migratePizza(M);migratePizzaPrices(M);
 
 let currentCategory = Object.keys(M)[0];
 let cart = [];
@@ -752,7 +794,7 @@ function norm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\
 
 // ===== وصف المكونات (افتراضي - يمكن تعديله من لوحة التحكم) =====
 function proteinOf(n) {
-    if (/fruits de mer/.test(n)) return "fruits de mer";
+    if (/fruits? de mer/.test(n)) return "fruits de mer";
     if (/cordon bleu/.test(n)) return "cordon bleu";
     if (/mexicain/.test(n)) return "poulet, poivrons et sauce mexicaine";
     if (/mixte/.test(n)) return "poulet et viande hachée";
@@ -797,14 +839,15 @@ function itemEl(cat, item, i) {
     let name = item[0], price = item[1];
     let pHTML = '';
     if (Array.isArray(price)) {
-        pHTML = `<div class="sz"><button class="b" onclick="addToCart('${cat}', ${i}, 0)">${t('small')}: ${price[0]} ${priceUnit()}</button><button class="b" onclick="addToCart('${cat}', ${i}, 1)">${t('large')}: ${price[1]} ${priceUnit()}</button></div>`;
+        const szN = price.length;
+        pHTML = `<div class="sz${szN === 3 ? ' sz3' : ''}">` + price.map((pr, k) => `<button class="b" onclick="addToCart('${cat}', ${i}, ${k})">${sizeLabel(k, szN)}: ${pr} ${priceUnit()}</button>`).join('') + `</div>`;
     } else {
         pHTML = `<div class="p">${price} ${priceUnit()}</div><button class="b" onclick="addToCart('${cat}', ${i})">+</button>`;
     }
     const src = (cat === 'TACOS') ? MEX_IMG : (cat === 'PIZZA') ? PIZZA_THUMB : (cat === 'CHAWARMA') ? SHAWARMA_THUMB : (cat === 'SANDWICHS') ? SANDWICH_THUMB : (cat === 'BURGER') ? BURGER_THUMB : (cat === 'SALADES') ? SALAD_THUMB : (cat === 'PASTICCIO') ? PASTICCIO_THUMB : (cat === 'POULET RÔTI') ? POULET_THUMB : (cat === 'BOISSONS' || cat === 'BOISSONS FROIDES' || cat === 'JUS FRAIS') ? DRINKS_THUMB : null; // صورة الطاموس بدل الإيموجي لكل أطباق التاكوس
     const visual = src ? `<img src="${src}" alt="${escHtml(dishName(name))}" loading="lazy" decoding="async">` : (E[cat] || '🍽️');
     const ing = item[2] || ingText(ingFor(cat, name));
-    const priceTxt = Array.isArray(price) ? `${t('small')} ${price[0]} ${priceUnit()} · ${t('large')} ${price[1]} ${priceUnit()}` : `${price} ${priceUnit()}`;
+    const priceTxt = Array.isArray(price) ? price.map((pr, k) => `${sizeLabel(k, price.length)} ${pr} ${priceUnit()}`).join(' · ') : `${price} ${priceUnit()}`;
     const det = `<div class="d"><div class="di">${ing ? `<div class="dl">${t('ingr')}</div><div>${escHtml(ing)}</div>` : ''}<div class="dp">${t('price')} : ${priceTxt}</div></div></div>`;
     div.innerHTML = `<div class="e">${visual}</div><h3 class="n">${escHtml(dishName(name))}</h3>${pHTML}${det}`;
     // على اللمس (بدون ماوس): الضغط على البطاقة يفتح/يغلق التفاصيل
@@ -867,7 +910,7 @@ function addToCart(cat, idx, sizeIdx) {
     
     if (Array.isArray(price)) {
         finalPrice = price[sizeIdx];
-        sizeName = (sizeIdx === 0 ? ' (Petit)' : ' (Grand)');
+        sizeName = ' (' + (price.length === 3 ? ['P', 'M', 'G'] : ['P', 'G'])[sizeIdx] + ')';
     }
     
     doneId = null;
@@ -875,7 +918,7 @@ function addToCart(cat, idx, sizeIdx) {
     if (found) {
         found.qty++;
     } else {
-        cart.push({ cat, idx, sizeIdx, name: name + sizeName, baseName: name, price: finalPrice, qty: 1 });
+        cart.push({ cat, idx, sizeIdx, nSizes: Array.isArray(price) ? price.length : 1, name: name + sizeName, baseName: name, price: finalPrice, qty: 1 });
     }
     updateBar();
 }
@@ -1003,7 +1046,7 @@ function orderPayload() {
         phone: TABLE ? null : custPhone.trim(),
         address: locDesc.trim() || null,
         mapsLink: userLoc || null,
-        items: cart.map(c => ({ cat: c.cat, idx: c.idx, sizeIdx: (c.sizeIdx === 0 || c.sizeIdx === 1) ? c.sizeIdx : null, name: c.baseName || c.name, qty: c.qty, price: c.price }))
+        items: cart.map(c => ({ cat: c.cat, idx: c.idx, sizeIdx: (typeof c.sizeIdx === 'number') ? c.sizeIdx : null, name: c.baseName || c.name, qty: c.qty, price: c.price }))
     };
 }
 function renderDone() {
@@ -1052,6 +1095,7 @@ renderMain();
       const m=JSON.parse(d);
       if(!m||typeof m!=="object"||!Object.keys(m).length)return;
       M=m;
+      {const c1=migrateTacos(M),c2=migratePizza(M),c3=migratePizzaPrices(M);if(c1||c2||c3){store(M);}}
       try{localStorage.setItem("yassinos_custom_menu_v4",JSON.stringify(M));}catch(e){}
       if(!(currentCategory in M))currentCategory=Object.keys(M)[0];
       renderNav();renderMain();
@@ -2003,7 +2047,7 @@ function hl(str,words){
   }
   return out+(open?'</mark>':'');
 }
-function priceTxt(p){return (Array.isArray(p)?p[0]+'–'+p[1]:p)+' '+priceUnit()}
+function priceTxt(p){return (Array.isArray(p)?p[0]+'–'+p[p.length-1]:p)+' '+priceUnit()}
 
 function compute(q){
   var words=norm(q).split(/\s+/).filter(Boolean);
