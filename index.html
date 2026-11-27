@@ -770,6 +770,8 @@ function sortMenu(m){
         const before=m[k].map(it=>it[0]).join("|");
         m[k].sort((a,b)=>(lo(a)-lo(b))||(hi(a)-hi(b)));
         if(k==="SANDWICHS"){const pi=m[k].findIndex(it=>it[0]==="Sandwich Plat");if(pi>0)m[k].unshift(m[k].splice(pi,1)[0]);} /* استثناء: Sandwich Plat أولاً */
+        /* أي طبق اسمه يحتوي "Zaz" يكون أول القسم (الترتيب بالسعر يبقى بين أطباق زاز نفسها) */
+        {const isZ=it=>/\bzaz\b/i.test(String(it[0]));const z=m[k].filter(isZ),o=m[k].filter(it=>!isZ(it));z.concat(o).forEach((it,j)=>{m[k][j]=it});}
         if(m[k].map(it=>it[0]).join("|")!==before)ch=true;
     }
     return ch;
