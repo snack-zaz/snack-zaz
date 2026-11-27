@@ -2269,6 +2269,11 @@ itemEl=function(cat,item,i){
         sp.textContent=({fr:'Kefta · Poulet · Panaché · Saucisse',en:'Kefta · Chicken · Mixed · Sausage',ar:'كفتة · دجاج · باناشي · سوسيس'})[LANG]||'Kefta · Poulet · Panaché · Saucisse';
         w.appendChild(sp);
       }
+      /* مكونات الكومبو بجانب التقييم (كل الكومبوس) */
+      if(/^COMBOS/.test(cat)&&!/^2 salade zaz/i.test(item[0])){
+        var cing=ingText(item[2]||ingFor(cat,item[0]));
+        if(cing){var sc=document.createElement('span');sc.className='sdTypes';sc.textContent=cing;w.appendChild(sc);}
+      }
     }
   }catch(e){}
   return div;
