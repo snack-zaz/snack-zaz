@@ -1078,6 +1078,7 @@ function renderMain() {
     inCart = false; doneId = null;
     const main = document.getElementById('main');
     const words = norm(searchQ).split(/\s+/).filter(Boolean);
+    main.classList.toggle('catJus', !words.length && currentCategory === 'JUS FRAIS' && !(typeof inReviews !== 'undefined' && inReviews));
 
     if (words.length) {
         main.innerHTML = `<h2>🔍 ${escHtml(searchQ.trim())}</h2>`;
@@ -2236,6 +2237,8 @@ rvLoad(true);
 .sgSub{display:block;font-size:12px;opacity:.65}
 .sgNo{padding:12px;text-align:center;opacity:.8}
 #main{padding-bottom:12px!important}
+/* توسيع الصفحة فقط في قسم Jus frais */
+#main.catJus{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))!important;min-height:100vh;min-height:100dvh;overflow-anchor:none}
 #combos{padding:0 12px 90px;max-width:720px;margin:auto}
 @media (max-width:600px){#combos{padding-bottom:78px}}
 </style>
