@@ -238,6 +238,7 @@ body.poster{background:#000}
         <a href="tel:+212690190984">📞 0690-190984</a>
         <a href="https://wa.me/212690190984" style="background:var(--grf)">💬 WhatsApp</a>
     </div>
+    <div id="openStatus" class="hide" role="status"></div>
 
 </header>
 
@@ -334,6 +335,61 @@ const I18N = {
   phonePh:"رقم هاتفك (لتأكيد الطلب)", phoneNeed:"الرجاء إدخال رقم هاتف صحيح", sending:"⏳ جارٍ الإرسال...", apiFail:"تعذّر الإرسال المباشر، جارٍ فتح واتساب...", doneTitle:"✅ تم استلام طلبك!", doneNo:"طلب رقم {id}", doneMsg:"سنتصل بك قريباً جداً لتأكيد الطلب. شكراً لك!", doneNew:"طلب جديد", switchLabel:"اللغة"
  }
 };
+/* ===== إعدادات الطلب (عدّل هذه القيم فقط) =====
+   أي قيمة تتركها null تبقى مخفية ولا تظهر للزبائن. */
+const CONFIG = {
+  DELIVERY_FEE: null,        // رسوم التوصيل بالدرهم. مثال: 10  (0 = مجاني، null = لا يظهر)
+  MIN_ORDER: null,           // الحد الأدنى للطلب (للتوصيل فقط). مثال: 30
+  HOURS: null,               // ساعات العمل. مثال: {open:"12:00", close:"00:00"}  (00:00 = منتصف الليل)
+  BLOCK_WHEN_CLOSED: false,  // true = منع إرسال الطلب خارج ساعات العمل، false = تنبيه فقط
+  ETA: null,                 // وقت التوصيل التقريبي. مثال: {fr:"30-45 min", en:"30-45 min", ar:"30-45 دقيقة"}
+  PAYMENT: 'cash'            // 'cash' = الدفع عند الاستلام، null = لا يظهر
+};
+Object.assign(I18N.fr,{
+  note:"Note (ex : sans oignon, type de sauce…)", subtotal:"Sous-total :", delivery:"Livraison :", free:"Gratuite", grandTotal:"Total à payer :",
+  minWarn:"Commande minimum : {m} DH (il manque {r} DH)", payCash:"💵 Paiement à la livraison (espèces)", etaTxt:"⏱️ Livraison estimée : {e}",
+  openNow:"🟢 Ouvert · ferme à {c}", closedNow:"🔴 Fermé maintenant · ouvre à {o}",
+  closedWarn:"⚠️ Nous sommes fermés pour le moment (ouverture à {o}). Vous pouvez quand même envoyer votre commande.", closedBlock:"Fermé pour le moment (ouverture à {o})"
+});
+Object.assign(I18N.en,{
+  note:"Note (e.g. no onions, sauce type…)", subtotal:"Subtotal:", delivery:"Delivery:", free:"Free", grandTotal:"Total to pay:",
+  minWarn:"Minimum order: {m} DH ({r} DH to go)", payCash:"💵 Cash on delivery", etaTxt:"⏱️ Estimated delivery: {e}",
+  openNow:"🟢 Open · closes at {c}", closedNow:"🔴 Closed now · opens at {o}",
+  closedWarn:"⚠️ We are closed right now (opens at {o}). You can still send your order.", closedBlock:"Closed right now (opens at {o})"
+});
+Object.assign(I18N.ar,{
+  note:"ملاحظة (مثال: بدون بصل، نوع الصلصة…)", subtotal:"المجموع الجزئي:", delivery:"التوصيل:", free:"مجاني", grandTotal:"المبلغ الإجمالي:",
+  minWarn:"الحد الأدنى للطلب: {m} درهم (ينقصك {r} درهم)", payCash:"💵 الدفع عند الاستلام", etaTxt:"⏱️ وقت التوصيل التقريبي: {e}",
+  openNow:"🟢 مفتوح · يغلق عند {c}", closedNow:"🔴 مغلق الآن · يفتح عند {o}",
+  closedWarn:"⚠️ نحن مغلقون حاليًا (نفتح عند {o}). يمكنك مع ذلك إرسال طلبك.", closedBlock:"مغلق حاليًا (نفتح عند {o})"
+});
+function hmToMin(v){const m=String(v||'').match(/^(\d{1,2}):(\d{2})$/);return m?(+m[1])*60+(+m[2]):null}
+function nowMinMA(){
+  try{
+    const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date());
+    return ((+p.find(x=>x.type==='hour').value)%24)*60+(+p.find(x=>x.type==='minute').value);
+  }catch(e){const d=new Date();return d.getHours()*60+d.getMinutes()}
+}
+function isOpenNow(){
+  const H=CONFIG.HOURS; if(!H)return null;
+  const o=hmToMin(H.open),c=hmToMin(H.close); if(o===null||c===null)return null;
+  const n=nowMinMA();
+  return c<=o ? (n>=o||n<c) : (n>=o&&n<c);
+}
+function renderOpenStatus(){
+  const el=document.getElementById('openStatus'); if(!el)return;
+  const st=isOpenNow();
+  if(st===null){el.classList.add('hide');return}
+  el.classList.remove('hide');
+  el.className='openSt '+(st?'on':'off');
+  el.textContent = st ? t('openNow',{c:CONFIG.HOURS.close}) : t('closedNow',{o:CONFIG.HOURS.open});
+}
+function cartTotals(){
+  const sub=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const fee=(!TABLE&&CONFIG.DELIVERY_FEE!==null&&CONFIG.DELIVERY_FEE!==undefined)?Number(CONFIG.DELIVERY_FEE):null;
+  return {sub:sub,fee:fee,total:sub+(fee||0)};
+}
+function belowMin(){return !TABLE&&CONFIG.MIN_ORDER&&cartTotals().sub<Number(CONFIG.MIN_ORDER)}
 /* أسماء الأقسام (المفتاح يبقى فرنسياً لأن البيانات والسحابة تعتمد عليه) */
 const CAT_NAMES = {
  TACOS:{fr:"TACOS",en:"TACOS",ar:"تاكوس"}, SANDWICHS:{fr:"SANDWICHS",en:"SANDWICHES",ar:"ساندويتشات"}, BURGER:{fr:"BURGERS",en:"BURGERS",ar:"برغر"},
@@ -470,7 +526,7 @@ function applyLang(l,noSave){
   M2('meta[name="twitter:title"]',d.title);M2('meta[name="twitter:description"]',d.desc);
   M2('meta[property="og:locale"]',{fr:'fr_MA',en:'en_US',ar:'ar_MA'}[l]);
   const sb=document.getElementById('showMenuBtn');if(sb)sb.textContent=document.body.classList.contains('poster')?t('showMenu'):t('menuShown');
-  try{renderNav();if(inCart)openCart();else renderMain();updateBar();}catch(e){}
+  try{renderNav();if(inCart)openCart();else renderMain();updateBar();renderOpenStatus();}catch(e){}
   try{window.dispatchEvent(new Event('resize'));}catch(e){}
 }
 function setLang(l){applyLang(l)}
@@ -1214,9 +1270,18 @@ function openCart() {
     } else {
         cart.forEach((c, i) => {
             html += `<div class="row"><span>${escHtml(cartLabel(c))} - ${c.price} ${priceUnit()}</span><div class="q"><button onclick="changeQty(${i}, -1)">-</button><span>${c.qty}</span><button onclick="changeQty(${i}, 1)">+</button></div></div>`;
+            html += `<input type="text" class="cnote" dir="auto" maxlength="120" placeholder="📝 ${escHtml(t('note'))}" value="${escHtml(c.note || '')}" oninput="cart[${i}].note=this.value">`;
         });
-        let tot = cart.reduce((s, c) => s + c.price * c.qty, 0);
-        html += `<div class="row tot"><b>${t('total')}</b> <b>${tot} ${priceUnit()}</b></div>`;
+        const T = cartTotals();
+        if (T.fee !== null) {
+            html += `<div class="row tot"><span>${t('subtotal')}</span> <span>${T.sub} ${priceUnit()}</span></div>`;
+            html += `<div class="row"><span>${t('delivery')}</span> <span>${T.fee ? T.fee + ' ' + priceUnit() : t('free')}</span></div>`;
+            html += `<div class="row" style="border-top:1px solid var(--gold)"><b>${t('grandTotal')}</b> <b>${T.total} ${priceUnit()}</b></div>`;
+        } else {
+            html += `<div class="row tot"><b>${t('total')}</b> <b>${T.sub} ${priceUnit()}</b></div>`;
+        }
+        if (belowMin()) { html += `<div class="warnBox red">⚠️ ${t('minWarn',{m:CONFIG.MIN_ORDER,r:Number(CONFIG.MIN_ORDER)-T.sub})}</div>`; }
+        if (isOpenNow() === false) { html += `<div class="warnBox amber">${t('closedWarn',{o:CONFIG.HOURS.open})}</div>`; }
         if (TABLE_ERR) { html += `<div style="background:#c62828;color:#fff;border-radius:12px;padding:14px;margin-top:14px;text-align:center;font-size:18px;font-weight:800">⚠️ ${tableErrText()}</div>`; }
         if (TABLE) { html += `<div style="background:rgba(0,0,0,.55);border:2px solid var(--green);border-radius:12px;padding:14px;margin-top:14px;text-align:center;font-size:20px;font-weight:800">${t('table',{n:escHtml(TABLE)})}</div>`; }
         if (!TABLE) {
@@ -1231,8 +1296,15 @@ function openCart() {
             <div id="locStatus" style="font-weight:700;margin-top:4px">${locStatusText()}</div>
         </div>`;
         }
-        if (ORDER_API_URL && !TABLE) { html += `<input id="custPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel" placeholder="📞 ${t('phonePh')}" value="${escHtml(custPhone)}" oninput="custPhone=this.value" style="margin-top:14px">`; }
-        html += `<button class="b" id="sendBtn" style="width:100%;margin-top:15px;" onclick="sendWA()">${t('sendWA')}</button>`;
+        if (!TABLE) { html += `<input id="custPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel" placeholder="📞 ${t('phonePh')}" value="${escHtml(custPhone)}" oninput="custPhone=this.value" style="margin-top:14px">`; }
+        if (!TABLE) {
+            let info = '';
+            if (CONFIG.PAYMENT === 'cash') info += `<div>${t('payCash')}</div>`;
+            const eta = CONFIG.ETA && (CONFIG.ETA[LANG] || CONFIG.ETA.fr || (typeof CONFIG.ETA === 'string' ? CONFIG.ETA : ''));
+            if (eta) info += `<div>${t('etaTxt',{e:escHtml(eta)})}</div>`;
+            if (info) html += `<div class="infoBox">${info}</div>`;
+        }
+        html += `<button class="b" id="sendBtn" style="width:100%;margin-top:15px;" ${belowMin() ? 'disabled' : ''} onclick="sendWA()">${t('sendWA')}</button>`;
     }
     main.innerHTML = html;
 }
@@ -1263,7 +1335,8 @@ function orderPayload() {
         phone: TABLE ? null : custPhone.trim(),
         address: locDesc.trim() || null,
         mapsLink: userLoc || null,
-        items: cart.map(c => ({ cat: c.cat, idx: c.idx, sizeIdx: (typeof c.sizeIdx === 'number') ? c.sizeIdx : null, name: c.baseName || c.name, qty: c.qty, price: c.price }))
+        deliveryFee: cartTotals().fee,
+        items: cart.map(c => ({ cat: c.cat, idx: c.idx, sizeIdx: (typeof c.sizeIdx === 'number') ? c.sizeIdx : null, name: c.baseName || c.name, qty: c.qty, price: c.price, note: (c.note || '').trim() || null }))
     };
 }
 function renderDone() {
@@ -1272,6 +1345,8 @@ function renderDone() {
 }
 async function sendWA() {
     if (TABLE_ERR) { toast(tableErrText()); return; }
+    if (belowMin()) { toast(t('minWarn',{m:CONFIG.MIN_ORDER,r:Number(CONFIG.MIN_ORDER)-cartTotals().sub})); return; }
+    if (CONFIG.BLOCK_WHEN_CLOSED && isOpenNow() === false) { toast(t('closedBlock',{o:CONFIG.HOURS.open})); return; }
     if (!TABLE && !hasLoc()) { toast(t('locNeed')); const el=document.getElementById('locDesc'); if(el) el.focus(); return; }
     if (!ORDER_API_URL) { return sendWAFallback(); }
     if (sending || !cart.length) return;
@@ -1291,18 +1366,34 @@ async function sendWA() {
     } finally { clearTimeout(tm); sending = false; }
 }
 function sendWAFallback() {
-    let txt = "Bonjour, je souhaite commander:%0A";
-    cart.forEach(c => { txt += `- ${c.qty}x ${c.name} (${c.price * c.qty} DH)%0A`; });
-    let tot = cart.reduce((s, c) => s + c.price * c.qty, 0);
-    txt += `%0ATotal: ${tot} DH`;
-    if (TABLE) txt = `🪑 TABLE N° ${encodeURIComponent(TABLE)}%0A%0A` + txt;
-    if (locDesc.trim()) txt += `%0A%0A📍 Adresse: ${encodeURIComponent(locDesc.trim())}`;
-    if (userLoc) txt += `%0A🗺️ Position: ${encodeURIComponent(userLoc)}`;
-    window.open(`https://wa.me/${WA}?text=${txt}`, '_blank');
+    const T = cartTotals(), L = [], SEP = '──────────';
+    L.push('🛒 *Nouvelle commande – Snack Zaz*');
+    if (TABLE) L.push('🪑 *Table n° ' + TABLE + '*');
+    L.push(SEP);
+    L.push('*Articles :*');
+    cart.forEach(c => {
+        L.push('• ' + c.qty + ' × ' + c.name + ' — ' + (c.price * c.qty) + ' DH');
+        if ((c.note || '').trim()) L.push('   📝 ' + c.note.trim());
+    });
+    L.push(SEP);
+    if (T.fee !== null) {
+        L.push('Sous-total : ' + T.sub + ' DH');
+        L.push('Livraison : ' + (T.fee ? T.fee + ' DH' : 'Gratuite'));
+    }
+    L.push('*TOTAL : ' + T.total + ' DH*');
+    if (!TABLE && CONFIG.PAYMENT === 'cash') L.push('💵 Paiement : à la livraison (espèces)');
+    if (locDesc.trim() || userLoc || custPhone.trim()) {
+        L.push(SEP);
+        if (locDesc.trim()) L.push('📍 *Adresse :* ' + locDesc.trim());
+        if (userLoc) L.push('🗺️ *Position :* ' + userLoc);
+        if (custPhone.trim()) L.push('📞 *Téléphone :* ' + custPhone.trim());
+    }
+    window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(L.join('\n')), '_blank');
 }
 
 renderNav();
 renderMain();
+renderOpenStatus();setInterval(renderOpenStatus,60000);
 
 // تحميل القائمة من السحابة (Firebase) وتحديث العرض
 (function loadCloudMenu(){
@@ -2237,6 +2328,13 @@ rvLoad(true);
 .sgSub{display:block;font-size:12px;opacity:.65}
 .sgNo{padding:12px;text-align:center;opacity:.8}
 #main{padding-bottom:12px!important}
+.openSt{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:14px;font-weight:800;font-size:13px;background:rgba(0,0,0,.55);border:1px solid var(--green)}
+.openSt.off{border-color:#ff5252;color:#ffb3b3}
+.cnote{width:100%;padding:7px 10px!important;margin:0 0 8px!important;font-size:14px!important;border-radius:8px!important}
+.warnBox{border-radius:12px;padding:10px 12px;margin-top:12px;font-weight:700;text-align:center;line-height:1.5}
+.warnBox.red{background:#7f1d1d;border:1px solid #ff5252;color:#fff}
+.warnBox.amber{background:#5a3d00;border:1px solid #ffb300;color:#fff}
+.infoBox{margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.55);border:1px solid var(--green);font-weight:700;line-height:1.7}
 /* توسيع الصفحة فقط في قسم Jus frais */
 #main.catJus{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))!important;min-height:100vh;min-height:100dvh;overflow-anchor:none}
 #combos{padding:0 12px 90px;max-width:720px;margin:auto}
@@ -2408,6 +2506,93 @@ function syncCombos(){
     syncCombos();
 })();
 </script>
+<script>
+/* ===== السحب يمينًا/يسارًا للتنقل بين أقسام القائمة ===== */
+(function(){
+  var MIN_DX = 60;      // أقل مسافة أفقية (px)
+  var MAX_MS = 700;     // أقصى مدة للسحبة
+  var RATIO  = 1.6;     // يجب أن تكون السحبة أفقية بوضوح مقارنة بالعمودية
+  var EDGE   = 18;      // تجاهل السحب من حافة الشاشة (حتى لا يتعارض مع إيماءة الرجوع)
+  var IGNORE = 'input,textarea,select,nav,#bar,#pinBox,.rvOv,.admin-box,#searchBar';
+  var sx = 0, sy = 0, st = 0, tracking = false;
+
+  function menuVisible(){
+    var m = document.getElementById('main');
+    return !!m && !m.classList.contains('hide') && !document.body.classList.contains('poster');
+  }
+  function canSwipe(){
+    if (!menuVisible()) return false;
+    try { if (inCart) return false; } catch(e) {}                 // السلة / شاشة الطلب
+    try { if (norm(searchQ)) return false; } catch(e) {}          // أثناء البحث
+    if (window.visualViewport && window.visualViewport.scale > 1.05) return false; // أثناء التكبير
+    return true;
+  }
+  function inHScroller(el){
+    while (el && el !== document.body && el.nodeType === 1) {
+      if (el.scrollWidth > el.clientWidth + 2) {
+        var ox = getComputedStyle(el).overflowX;
+        if (ox === 'auto' || ox === 'scroll') return true;
+      }
+      el = el.parentElement;
+    }
+    return false;
+  }
+
+  function go(dx){
+    var rtl = document.documentElement.dir === 'rtl';
+    var dir = ((dx < 0) !== rtl) ? 1 : -1;        // 1 = القسم التالي، -1 = السابق
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var btns = Array.prototype.slice.call(nav.querySelectorAll('button'));
+    var cur = -1;
+    btns.forEach(function(b, i){ if (b.classList.contains('on')) cur = i; });
+    if (cur < 0) return;
+    var nxt = btns[cur + dir];
+    if (!nxt) return;                              // وصلنا لأول/آخر قسم
+    nxt.click();
+
+    // تمرير شريط الأقسام ليظهر القسم الحالي
+    var on = nav.querySelector('button.on');
+    if (on && on.scrollIntoView) on.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+
+    var m = document.getElementById('main');
+    if (m) {
+      if (m.getBoundingClientRect().top < 0) m.scrollIntoView({block:'start'});
+      if (m.animate && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+        var from = dir > 0 ? (rtl ? -28 : 28) : (rtl ? 28 : -28);
+        m.animate(
+          [{transform:'translateX(' + from + 'px)', opacity:0}, {transform:'none', opacity:1}],
+          {duration:220, easing:'ease-out'}
+        );
+      }
+    }
+  }
+
+  document.addEventListener('touchstart', function(e){
+    tracking = false;
+    if (e.touches.length !== 1) return;
+    var t = e.touches[0], tg = e.target;
+    if (t.clientX < EDGE || t.clientX > window.innerWidth - EDGE) return;
+    if (tg.closest && tg.closest(IGNORE)) return;
+    if (!canSwipe() || inHScroller(tg)) return;
+    sx = t.clientX; sy = t.clientY; st = Date.now(); tracking = true;
+  }, {passive:true});
+
+  document.addEventListener('touchend', function(e){
+    if (!tracking) return;
+    tracking = false;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Date.now() - st > MAX_MS) return;
+    if (Math.abs(dx) < MIN_DX || Math.abs(dx) < Math.abs(dy) * RATIO) return;
+    if (!canSwipe()) return;
+    go(dx);
+  }, {passive:true});
+
+  document.addEventListener('touchcancel', function(){ tracking = false; }, {passive:true});
+})();
+</script>
+
 <script>applyLang(LANG,true);</script>
 </body>
 </html>
