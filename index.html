@@ -363,6 +363,9 @@ Object.assign(I18N.ar,{
   openNow:"🟢 مفتوح · يغلق عند {c}", closedNow:"🔴 مغلق الآن · يفتح عند {o}",
   closedWarn:"⚠️ نحن مغلقون حاليًا (نفتح عند {o}). يمكنك مع ذلك إرسال طلبك.", closedBlock:"مغلق حاليًا (نفتح عند {o})"
 });
+Object.assign(I18N.fr,{namePh:"Votre nom", nameNeed:"Veuillez saisir votre nom"});
+Object.assign(I18N.en,{namePh:"Your name", nameNeed:"Please enter your name"});
+Object.assign(I18N.ar,{namePh:"اسمك", nameNeed:"الرجاء إدخال اسمك"});
 function hmToMin(v){const m=String(v||'').match(/^(\d{1,2}):(\d{2})$/);return m?(+m[1])*60+(+m[2]):null}
 function nowMinMA(){
   try{
@@ -1118,7 +1121,7 @@ function itemEl(cat, item, i) {
     const src0 = (cat === 'TACOS') ? MEX_IMG : (cat === 'PIZZA') ? PIZZA_THUMB : (cat === 'CHAWARMA') ? SHAWARMA_THUMB : (cat === 'SANDWICHS') ? SANDWICH_THUMB : (cat === 'BURGER') ? BURGER_THUMB : (cat === 'SALADES') ? SALAD_THUMB : (cat === 'PASTICCIO') ? PASTICCIO_THUMB : (cat === 'POULET RÔTI') ? POULET_THUMB : (cat === 'BOISSONS' || cat === 'BOISSONS FROIDES' || cat === 'JUS FRAIS') ? DRINKS_THUMB : (cat === 'COMBOS') ? COMBO_THUMB : null; // صورة الطاموس بدل الإيموجي لكل أطباق التاكوس
     const src = dishImg(name) || src0;
     const visual = src ? `<img src="${src}" alt="${escHtml(dishName(name))}" loading="lazy" decoding="async">` : (E[cat] || '🍽️');
-    const ing = item[2] || ingText(ingFor(cat, name));
+    const ing = (name === 'Jus Zaz') ? 'secret' : (item[2] || ingText(ingFor(cat, name)));
     const priceTxt = Array.isArray(price) ? price.map((pr, k) => `${sizeLabel(k, price.length)} ${pr} ${priceUnit()}`).join(' · ') : `${price} ${priceUnit()}`;
     const det = `<div class="d"><div class="di">${ing ? `<div class="dl">${t('ingr')}</div><div>${escHtml(ing)}</div>` : ''}<div class="dp">${t('price')} : ${priceTxt}</div></div></div>`;
     div.innerHTML = `<div class="e">${visual}</div><h3 class="n">${escHtml(dishName(name))}</h3>${pHTML}${det}`;
@@ -1296,6 +1299,7 @@ function openCart() {
             <div id="locStatus" style="font-weight:700;margin-top:4px">${locStatusText()}</div>
         </div>`;
         }
+        if (!TABLE) { html += `<input id="custName" type="text" dir="auto" autocomplete="name" maxlength="60" placeholder="👤 ${t('namePh')}" value="${escHtml(custName)}" oninput="custName=this.value" style="margin-top:14px">`; }
         if (!TABLE) { html += `<input id="custPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel" placeholder="📞 ${t('phonePh')}" value="${escHtml(custPhone)}" oninput="custPhone=this.value" style="margin-top:14px">`; }
         if (!TABLE) {
             let info = '';
@@ -1326,12 +1330,13 @@ function updateBar() {
 /* ===== طلب مباشر عبر API =====
    ضع هنا رابط الـ Worker بعد نشره (انظر SETUP.md). إن تُرك فارغاً يعمل الموقع كما كان: الطلب يُفتح في واتساب. */
 const ORDER_API_URL = "";
-let custPhone = "", doneId = null, sending = false;
+let custPhone = "", custName = "", doneId = null, sending = false;
 
 function orderPayload() {
     return {
         table: TABLE || null,
         lang: LANG,
+        name: TABLE ? null : custName.trim(),
         phone: TABLE ? null : custPhone.trim(),
         address: locDesc.trim() || null,
         mapsLink: userLoc || null,
@@ -1348,6 +1353,8 @@ async function sendWA() {
     if (belowMin()) { toast(t('minWarn',{m:CONFIG.MIN_ORDER,r:Number(CONFIG.MIN_ORDER)-cartTotals().sub})); return; }
     if (CONFIG.BLOCK_WHEN_CLOSED && isOpenNow() === false) { toast(t('closedBlock',{o:CONFIG.HOURS.open})); return; }
     if (!TABLE && !hasLoc()) { toast(t('locNeed')); const el=document.getElementById('locDesc'); if(el) el.focus(); return; }
+    if (!TABLE && !custName.trim()) { toast(t('nameNeed')); const el=document.getElementById('custName'); if(el) el.focus(); return; }
+    if (!TABLE && !/^\+?[0-9][0-9 .\-]{7,16}$/.test(custPhone.trim())) { toast(t('phoneNeed')); const el=document.getElementById('custPhone'); if(el) el.focus(); return; }
     if (!ORDER_API_URL) { return sendWAFallback(); }
     if (sending || !cart.length) return;
     if (!TABLE && !/^\+?[0-9][0-9 .\-]{7,16}$/.test(custPhone.trim())) { toast(t('phoneNeed')); const el=document.getElementById('custPhone'); if(el) el.focus(); return; }
@@ -1368,6 +1375,8 @@ async function sendWA() {
 function sendWAFallback() {
     const T = cartTotals(), L = [], SEP = '──────────';
     L.push('🛒 *Nouvelle commande – Snack Zaz*');
+    try { L.push('🕒 ' + new Intl.DateTimeFormat('fr-FR', { timeZone: 'Africa/Casablanca', dateStyle: 'short', timeStyle: 'short' }).format(new Date())); } catch (e) {}
+    if (!TABLE) L.push('🚚 *Livraison à domicile*');
     if (TABLE) L.push('🪑 *Table n° ' + TABLE + '*');
     L.push(SEP);
     L.push('*Articles :*');
@@ -1382,13 +1391,16 @@ function sendWAFallback() {
     }
     L.push('*TOTAL : ' + T.total + ' DH*');
     if (!TABLE && CONFIG.PAYMENT === 'cash') L.push('💵 Paiement : à la livraison (espèces)');
-    if (locDesc.trim() || userLoc || custPhone.trim()) {
+    if (custName.trim() || locDesc.trim() || userLoc || custPhone.trim()) {
         L.push(SEP);
+        if (!TABLE && custName.trim()) L.push('👤 *Nom :* ' + custName.trim());
         if (locDesc.trim()) L.push('📍 *Adresse :* ' + locDesc.trim());
         if (userLoc) L.push('🗺️ *Position :* ' + userLoc);
         if (custPhone.trim()) L.push('📞 *Téléphone :* ' + custPhone.trim());
     }
-    window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(L.join('\n')), '_blank');
+    const waUrl = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(L.join('\n'));
+    const w = window.open(waUrl, '_blank');
+    if (!w) location.href = waUrl;   // إن مُنعت النافذة المنبثقة نفتح واتساب في نفس الصفحة
 }
 
 renderNav();
@@ -2328,6 +2340,7 @@ rvLoad(true);
 .sgSub{display:block;font-size:12px;opacity:.65}
 .sgNo{padding:12px;text-align:center;opacity:.8}
 #main{padding-bottom:12px!important}
+#main:has(#sendBtn){padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important}
 .openSt{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:14px;font-weight:800;font-size:13px;background:rgba(0,0,0,.55);border:1px solid var(--green)}
 .openSt.off{border-color:#ff5252;color:#ffb3b3}
 .cnote{width:100%;padding:7px 10px!important;margin:0 0 8px!important;font-size:14px!important;border-radius:8px!important}
